@@ -10,5 +10,8 @@ public class DeviceCategoryConfiguration : IEntityTypeConfiguration<DeviceCatego
     {
         b.Property(c => c.Name)
             .HasMaxLength(100);
+
+        b.HasIndex(c => c.Name)
+            .IsUnique();
     }
 }

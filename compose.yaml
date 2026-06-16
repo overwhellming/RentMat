@@ -11,9 +11,12 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=rentmat-db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - Seq__DefaultConnection=http://rentmat-db:80
     depends_on:
       rentmat-db:
         condition: service_healthy
+      rentmat-seq:
+        condition: service_started
 
   rentmat-db:
     image: postgres:18-alpine
@@ -30,3 +33,13 @@
       interval: 10s
       timeout: 5s
       retries: 5
+      
+  rentmat-seq:
+    image: datalust/seq:latest
+    container_name: rentmat_seq
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_PASSWORD=${SEQ_PASSWORD}
+    ports:
+      - "5341:80"

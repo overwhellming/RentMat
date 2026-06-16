@@ -22,6 +22,93 @@ namespace RentMat.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RentMat.Core.Models.Booking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("DeviceId", "StartDate", "EndDate");
+
+                    b.ToTable("Bookings", t =>
+                        {
+                            t.HasCheckConstraint("CK_RentalBooking_EndAfterStart", "\"EndDate\" > \"StartDate\"");
+
+                            t.HasCheckConstraint("CK_RentalBooking_TotalPrice_NonNegative", "\"TotalPrice\" >= 0");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DeviceId = 1,
+                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 10, 15, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 10, 10, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Status = "Completed",
+                            TotalPrice = 750m,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DeviceId = 2,
+                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 22, 18, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 20, 18, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Status = "Created",
+                            TotalPrice = 5760m,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DeviceId = 3,
+                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 17, 12, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Status = "Active",
+                            TotalPrice = 4800m,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DeviceId = 2,
+                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 25, 17, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 25, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Status = "Cancelled",
+                            TotalPrice = 960m,
+                            UserId = 1
+                        });
+                });
+
             modelBuilder.Entity("RentMat.Core.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -42,8 +129,10 @@ namespace RentMat.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -56,33 +145,33 @@ namespace RentMat.Infrastructure.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            HourRentPrice = 150.00m,
+                            HourRentPrice = 150m,
                             Name = "PlayStation 5 Pro",
-                            Status = 1
+                            Status = "Available"
                         },
                         new
                         {
                             Id = 2,
                             CategoryId = 1,
-                            HourRentPrice = 120.00m,
+                            HourRentPrice = 120m,
                             Name = "Xbox Series X",
-                            Status = 1
+                            Status = "Rented"
                         },
                         new
                         {
                             Id = 3,
                             CategoryId = 2,
-                            HourRentPrice = 200.00m,
+                            HourRentPrice = 200m,
                             Name = "Meta Quest 3 (128GB)",
-                            Status = 1
+                            Status = "Rented"
                         },
                         new
                         {
                             Id = 4,
                             CategoryId = 3,
-                            HourRentPrice = 350.00m,
+                            HourRentPrice = 350m,
                             Name = "ASUS ROG (RTX 4090, i9)",
-                            Status = 2
+                            Status = "Maintenance"
                         });
                 });
 
@@ -100,6 +189,9 @@ namespace RentMat.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("DeviceCategory");
 
@@ -165,12 +257,49 @@ namespace RentMat.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Balance = 5000.00m,
-                            CreatedAt = new DateTime(2007, 8, 29, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Balance = 5000m,
+                            CreatedAt = new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "dragonborn@tamriel.com",
-                            HashedPassword = "$2a$11$MX9xI7v09h4Lz6e6PZ7hCOgK8I.C2vS8iWx9wG1R1Wq8M2kM5G2t.",
+                            HashedPassword = "hash",
                             Login = "Dovahkiin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Balance = 15000m,
+                            CreatedAt = new DateTime(2024, 2, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "geralt@kaermorhen.com",
+                            HashedPassword = "hash",
+                            Login = "Geralt"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Balance = 25000m,
+                            CreatedAt = new DateTime(2024, 3, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "shepard@normandy.com",
+                            HashedPassword = "hash",
+                            Login = "Shepard"
                         });
+                });
+
+            modelBuilder.Entity("RentMat.Core.Models.Booking", b =>
+                {
+                    b.HasOne("RentMat.Core.Models.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RentMat.Core.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RentMat.Core.Models.Device", b =>
