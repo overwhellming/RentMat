@@ -1,0 +1,7 @@
+bin/
+obj/
+.env
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+appsettings.Development.json
