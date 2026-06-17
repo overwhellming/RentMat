@@ -4,7 +4,7 @@ using RentMat.Core.Models;
 
 namespace RentMat.Infrastructure.Configurations;
 
-public class RentalBookingConfiguration : IEntityTypeConfiguration<Booking>
+public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 {
     public void Configure(EntityTypeBuilder<Booking> b)
     {

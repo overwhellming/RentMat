@@ -10,6 +10,8 @@ public static class HandlerRegistrar
     {
         services.AddScoped<GetDevicesHandler>();
         services.AddScoped<BookDeviceHandler>();
+        services.AddScoped<CompleteBookingHandler>();
+        services.AddScoped<GetBookingsHandler>();
         return services;
     }
 }

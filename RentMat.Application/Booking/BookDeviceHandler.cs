@@ -63,7 +63,7 @@ public class BookDeviceHandler
             await _db.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
 
-            return new BookingResponseDto(booking.Id, device.Name, user.Login, dto.startDate, dto.endDate, totalPrice);
+            return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.startDate, dto.endDate, totalPrice);
         }
         else
         {
