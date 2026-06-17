@@ -54,6 +54,7 @@ public class GetDevicesHandler
                 var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
                 var devices = await query
+                    .OrderBy(d => d.Id)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .Select(d => new DeviceResponseDto(

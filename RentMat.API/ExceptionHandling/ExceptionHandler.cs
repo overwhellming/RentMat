@@ -45,6 +45,7 @@ public class ExceptionHandler : IExceptionHandler
             UserNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
             DeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
             DeviceAlreadyBookedException ex => (HttpStatusCode.BadRequest, ex.Message),
+            ActiveBookingNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
             _ => (HttpStatusCode.InternalServerError, "An unexpected error occured")
         };
 }

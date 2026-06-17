@@ -5,6 +5,7 @@ using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Core.Enums;
 using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Booking;
 
@@ -12,10 +13,12 @@ public class BookDeviceHandler
 {
     private const int MinutesBetweenRents = 15;
     private readonly AppDbContext _db;
-
-    public BookDeviceHandler(AppDbContext db)
+    private readonly IFusionCache _cache;
+    
+    public BookDeviceHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
+        _cache = cache;
     }
 
     public async Task<BookingResponseDto> Handle(BookingCreateDto dto,
@@ -63,7 +66,9 @@ public class BookDeviceHandler
             await _db.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
 
-            return new BookingResponseDto(booking.Id, device.Name, user.Login, dto.startDate, dto.endDate, totalPrice);
+            await _cache.RemoveByTagAsync("bookings");
+            
+            return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.startDate, dto.endDate, totalPrice);
         }
         else
         {
