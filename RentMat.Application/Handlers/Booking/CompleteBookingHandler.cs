@@ -17,7 +17,7 @@ public class CompleteBookingHandler
         _cache = cache;
     }
 
-    public async Task Handle(int deviceId, CancellationToken cancellationToken)
+    public async Task Handle(int deviceId, int userId, CancellationToken cancellationToken)
     {
         var activeBooking =
             await _db.Bookings
@@ -29,6 +29,9 @@ public class CompleteBookingHandler
         if (activeBooking == null)
             throw new ActiveBookingNotFoundException(deviceId);
 
+        if (activeBooking.UserId != userId)
+            throw new BookingAccessDeniedException();
+        
         var completedAt = DateTimeOffset.UtcNow;
         var actualHours = Math.Max(0m, (decimal)(completedAt - activeBooking.StartDate).TotalMinutes / 60m);
         var actualPrice = Math.Round(actualHours * activeBooking.Device.HourRentPrice, 2,

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Application.Handlers.Booking;
@@ -34,18 +36,24 @@ public class BookingsController : ControllerBase
     {
         return Ok(await _getBookingsHandler.Handle(page, pageSize, search, status, cancellationToken));
     }
-
+    
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDto dto, CancellationToken cancellationToken)
     {
-        var response = await _bookDeviceHandler.Handle(dto, cancellationToken);
+        var userId = GetUserId();
+        var response = await _bookDeviceHandler.Handle(dto, userId, cancellationToken);
         return Ok(response);
     }
 
     [HttpPost("complete/{deviceId:int}")]
     public async Task<IActionResult> CompleteBooking(int deviceId, CancellationToken cancellationToken)
     {
-        await _completeBookingHandler.Handle(deviceId, cancellationToken);
+        var userId = GetUserId();
+        await _completeBookingHandler.Handle(deviceId, userId, cancellationToken);
         return NoContent();
     }
+
+    private int GetUserId()
+        => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 }

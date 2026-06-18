@@ -21,15 +21,12 @@ public class BookDeviceHandler
         _cache = cache;
     }
 
-    public async Task<BookingResponseDto> Handle(BookingCreateDto dto,
+    public async Task<BookingResponseDto> Handle(BookingCreateDto dto, int userId,
         CancellationToken cancellationToken = default)
     {
-        if (dto.EndDate <= dto.StartDate)
-            throw new InvalidDateRangeException();
-
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId, cancellationToken) ??
-                   throw new UserNotFoundException(dto.UserId);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken) ??
+                   throw new UserNotFoundException(userId);
 
         var device = await _db.Devices
                          .AsNoTracking()
@@ -55,7 +52,7 @@ public class BookDeviceHandler
             var booking = new Core.Models.Booking
             {
                 DeviceId = dto.DeviceId,
-                UserId = dto.UserId,
+                UserId = userId,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 TotalPrice = totalPrice,

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Handlers.Authentication;
@@ -29,5 +31,16 @@ public class AuthController : ControllerBase
     {
         var token = await _loginHandler.Handle(dto, cancellationToken);
         return Ok(new { token });
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        return Ok(new
+        {
+            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+            Login = User.Identity?.Name
+        });
     }
 }
