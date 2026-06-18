@@ -225,7 +225,7 @@ namespace RentMat.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -258,7 +258,7 @@ namespace RentMat.Infrastructure.Migrations
                         {
                             Id = 1,
                             Balance = 5000m,
-                            CreatedAt = new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "dragonborn@tamriel.com",
                             HashedPassword = "hash",
                             Login = "Dovahkiin"
@@ -267,7 +267,7 @@ namespace RentMat.Infrastructure.Migrations
                         {
                             Id = 2,
                             Balance = 15000m,
-                            CreatedAt = new DateTime(2024, 2, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "geralt@kaermorhen.com",
                             HashedPassword = "hash",
                             Login = "Geralt"
@@ -276,7 +276,7 @@ namespace RentMat.Infrastructure.Migrations
                         {
                             Id = 3,
                             Balance = 25000m,
-                            CreatedAt = new DateTime(2024, 3, 20, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "shepard@normandy.com",
                             HashedPassword = "hash",
                             Login = "Shepard"

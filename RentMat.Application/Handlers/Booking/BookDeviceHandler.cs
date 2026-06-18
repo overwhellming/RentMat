@@ -1,13 +1,13 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using RentMat.Application.Booking.Exceptions;
+using RentMat.Application.Exceptions;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Core.Enums;
 using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace RentMat.Application.Booking;
+namespace RentMat.Application.Handlers.Booking;
 
 public class BookDeviceHandler
 {
@@ -24,28 +24,28 @@ public class BookDeviceHandler
     public async Task<BookingResponseDto> Handle(BookingCreateDto dto,
         CancellationToken cancellationToken = default)
     {
-        if (dto.endDate <= dto.startDate)
+        if (dto.EndDate <= dto.StartDate)
             throw new InvalidDateRangeException();
 
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == dto.userId, cancellationToken) ??
-                   throw new UserNotFoundException(dto.userId);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId, cancellationToken) ??
+                   throw new UserNotFoundException(dto.UserId);
 
         var device = await _db.Devices
                          .AsNoTracking()
-                         .FirstOrDefaultAsync(d => d.Id == dto.deviceId, cancellationToken) ??
-                     throw new DeviceNotFoundException(dto.deviceId);
+                         .FirstOrDefaultAsync(d => d.Id == dto.DeviceId, cancellationToken) ??
+                     throw new DeviceNotFoundException(dto.DeviceId);
 
         var hasConflicts = await _db.Bookings.AnyAsync(r =>
-            r.DeviceId == dto.deviceId &&
+            r.DeviceId == dto.DeviceId &&
             (r.Status == BookingStatus.Active || r.Status == BookingStatus.Created) &&
-            dto.startDate < r.EndDate.AddMinutes(MinutesBetweenRents) &&
-            dto.endDate > r.StartDate.AddMinutes(-MinutesBetweenRents), cancellationToken);
+            dto.StartDate < r.EndDate.AddMinutes(MinutesBetweenRents) &&
+            dto.EndDate > r.StartDate.AddMinutes(-MinutesBetweenRents), cancellationToken);
 
         if (!hasConflicts)
         {
             var priceForHour = device.HourRentPrice;
-            var hours = (decimal)(dto.endDate - dto.startDate).TotalMinutes / 60m;
+            var hours = (decimal)(dto.EndDate - dto.StartDate).TotalMinutes / 60m;
             var totalPrice = hours * priceForHour;
 
             if (user.Balance < totalPrice)
@@ -54,10 +54,10 @@ public class BookDeviceHandler
             user.Balance -= totalPrice;
             var booking = new Core.Models.Booking
             {
-                DeviceId = dto.deviceId,
-                UserId = dto.userId,
-                StartDate = dto.startDate,
-                EndDate = dto.endDate,
+                DeviceId = dto.DeviceId,
+                UserId = dto.UserId,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
                 TotalPrice = totalPrice,
                 Status = BookingStatus.Created
             };
@@ -65,10 +65,10 @@ public class BookDeviceHandler
             _db.Bookings.Add(booking);
             await _db.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
-
+            
             await _cache.RemoveByTagAsync("bookings");
             
-            return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.startDate, dto.endDate, totalPrice);
+            return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.StartDate, dto.EndDate, totalPrice);
         }
         else
         {

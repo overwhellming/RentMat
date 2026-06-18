@@ -12,6 +12,10 @@
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=rentmat-db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - Seq__DefaultConnection=http://rentmat-seq:80
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=RentMat
+      - Jwt__Audience=RentMatUsers
+      - Jwt__ExpireMinutes=60
     depends_on:
       rentmat-db:
         condition: service_healthy

@@ -1,6 +1,6 @@
 namespace RentMat.Application.DTOs.RentalBooking;
 
-public record BookingResponseDto(
+public sealed record BookingResponseDto(
     int Id,
     string DeviceName,
     string Login,

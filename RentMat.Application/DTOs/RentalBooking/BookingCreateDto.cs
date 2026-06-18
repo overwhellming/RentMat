@@ -1,3 +1,3 @@
 namespace RentMat.Application.DTOs.RentalBooking;
 
-public record BookingCreateDto(int deviceId, int userId, DateTimeOffset startDate, DateTimeOffset endDate);
+public sealed record BookingCreateDto(int DeviceId, int UserId, DateTimeOffset StartDate, DateTimeOffset EndDate);

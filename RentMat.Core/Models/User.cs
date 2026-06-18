@@ -7,5 +7,5 @@ public class User
     public required string Email { get; set; }
     public required string HashedPassword { get; set; }
     public decimal Balance { get; set; } 
-    public DateTime CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
 }

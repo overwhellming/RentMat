@@ -5,7 +5,7 @@ using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace RentMat.Application.Devices;
+namespace RentMat.Application.Handlers.Devices;
 
 public class GetDevicesHandler
 {

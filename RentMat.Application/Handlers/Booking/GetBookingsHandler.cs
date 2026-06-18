@@ -5,7 +5,7 @@ using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace RentMat.Application.Booking;
+namespace RentMat.Application.Handlers.Booking;
 
 public class GetBookingsHandler
 {
@@ -31,7 +31,7 @@ public class GetBookingsHandler
         if (page < 1)
             page = 1;
         if (pageSize < 1)
-            page = DefaultPageSize;
+            pageSize = DefaultPageSize;
         else if (pageSize > MaxPageSize)
             pageSize = MaxPageSize;
 

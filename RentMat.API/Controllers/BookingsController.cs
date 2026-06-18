@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RentMat.Application.Booking;
 using RentMat.Application.DTOs.RentalBooking;
+using RentMat.Application.Handlers.Booking;
 using RentMat.Core.Enums;
 
 namespace RentMat.API.Controllers;

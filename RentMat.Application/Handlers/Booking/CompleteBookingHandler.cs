@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using RentMat.Application.Booking.Exceptions;
+using RentMat.Application.Exceptions;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
-namespace RentMat.Application.Booking;
+namespace RentMat.Application.Handlers.Booking;
 
 public class CompleteBookingHandler
 {
@@ -41,8 +41,7 @@ public class CompleteBookingHandler
             activeBooking.User.Balance += refund;
         activeBooking.TotalPrice = actualPrice;
         
-        await _cache.RemoveByTagAsync("bookings");
-        
         await _db.SaveChangesAsync();
+        await _cache.RemoveByTagAsync("bookings");
     }
 }

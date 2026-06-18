@@ -2,7 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using RentMat.Application.Booking.Exceptions;
+using RentMat.Application.Exceptions;
 
 namespace RentMat.API.ExceptionHandling;
 

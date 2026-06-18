@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using RentMat.Application.Devices;
+using RentMat.Application.Handlers.Devices;
 using RentMat.Core.Enums;
 
 namespace RentMat.API.Controllers;
