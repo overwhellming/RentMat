@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<User> Users => Set<User>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<Deposit> Deposits => Set<Deposit>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -26,7 +26,8 @@ public class JwtTokenService : IJwtTokenService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Login)
+            new Claim(ClaimTypes.Name, user.Login),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
         };
 
         var keyString = jwt["Key"] ?? throw new JwtKeyNotFoundException();

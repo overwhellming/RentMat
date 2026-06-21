@@ -109,6 +109,30 @@ namespace RentMat.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("RentMat.Core.Models.Deposit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Deposits");
+                });
+
             modelBuilder.Entity("RentMat.Core.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -243,6 +267,10 @@ namespace RentMat.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -261,7 +289,8 @@ namespace RentMat.Infrastructure.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "dragonborn@tamriel.com",
                             HashedPassword = "hash",
-                            Login = "Dovahkiin"
+                            Login = "Dovahkiin",
+                            Role = "User"
                         },
                         new
                         {
@@ -270,7 +299,8 @@ namespace RentMat.Infrastructure.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2024, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "geralt@kaermorhen.com",
                             HashedPassword = "hash",
-                            Login = "Geralt"
+                            Login = "Geralt",
+                            Role = "User"
                         },
                         new
                         {
@@ -279,7 +309,8 @@ namespace RentMat.Infrastructure.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2024, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "shepard@normandy.com",
                             HashedPassword = "hash",
-                            Login = "Shepard"
+                            Login = "Shepard",
+                            Role = "User"
                         });
                 });
 
@@ -298,6 +329,17 @@ namespace RentMat.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Device");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RentMat.Core.Models.Deposit", b =>
+                {
+                    b.HasOne("RentMat.Core.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

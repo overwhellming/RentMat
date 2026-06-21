@@ -13,19 +13,22 @@ public class BookingsController : ControllerBase
 {
     private const int DefaultPage = 1;
     private const int DefaultPageSize = 10;
-    
+
     private readonly BookDeviceHandler _bookDeviceHandler;
     private readonly CompleteBookingHandler _completeBookingHandler;
-    private readonly GetBookingsHandler _getBookingsHandler;
+    private readonly GetAllBookingsHandler _getAllBookingsHandler;
+    private readonly GetUserBookingsHandler _getUserBookingsHandler;
 
     public BookingsController(BookDeviceHandler bookDeviceHandler, CompleteBookingHandler completeBookingHandler,
-        GetBookingsHandler getBookingsHandler)
+        GetAllBookingsHandler getAllBookingsHandler, GetUserBookingsHandler getUserBookingsHandler)
     {
         _bookDeviceHandler = bookDeviceHandler;
         _completeBookingHandler = completeBookingHandler;
-        _getBookingsHandler = getBookingsHandler;
+        _getAllBookingsHandler = getAllBookingsHandler;
+        _getUserBookingsHandler = getUserBookingsHandler;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll(
         CancellationToken cancellationToken,
@@ -34,20 +37,29 @@ public class BookingsController : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] BookingStatus? status = null)
     {
-        return Ok(await _getBookingsHandler.Handle(page, pageSize, search, status, cancellationToken));
-    }
-    
-    [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDto dto, CancellationToken cancellationToken)
-    {
-        var userId = GetUserId();
-        var response = await _bookDeviceHandler.Handle(dto, userId, cancellationToken);
-        return Ok(response);
+        return Ok(await _getAllBookingsHandler.Handle(page, pageSize, search, status, cancellationToken));
     }
 
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMy(CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        return Ok(
+            await _getUserBookingsHandler.Handle(userId, cancellationToken));
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] BookingCreateDto dto, CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        return Ok(await _bookDeviceHandler.Handle(dto, userId, cancellationToken));
+    }
+
+    [Authorize]
     [HttpPost("complete/{deviceId:int}")]
-    public async Task<IActionResult> CompleteBooking(int deviceId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Complete(int deviceId, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
         await _completeBookingHandler.Handle(deviceId, userId, cancellationToken);
@@ -55,5 +67,10 @@ public class BookingsController : ControllerBase
     }
 
     private int GetUserId()
-        => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userIdClaim))
+            throw new UnauthorizedAccessException("User ID claim is missing");
+        return int.Parse(userIdClaim);
+    }
 }

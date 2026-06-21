@@ -33,18 +33,11 @@ public class CompleteBookingHandler
             throw new BookingAccessDeniedException();
         
         var completedAt = DateTimeOffset.UtcNow;
-        var actualHours = Math.Max(0m, (decimal)(completedAt - activeBooking.StartDate).TotalMinutes / 60m);
-        var actualPrice = Math.Round(actualHours * activeBooking.Device.HourRentPrice, 2,
-            MidpointRounding.AwayFromZero);
-        var refund = activeBooking.TotalPrice - actualPrice;
 
         activeBooking.EndDate = completedAt;
         activeBooking.Status = BookingStatus.Completed;
-        if (refund > 0)
-            activeBooking.User.Balance += refund;
-        activeBooking.TotalPrice = actualPrice;
         
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(cancellationToken);
         await _cache.RemoveByTagAsync("bookings");
     }
 }

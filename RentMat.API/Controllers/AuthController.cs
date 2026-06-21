@@ -32,15 +32,4 @@ public class AuthController : ControllerBase
         var token = await _loginHandler.Handle(dto, cancellationToken);
         return Ok(new { token });
     }
-
-    [Authorize]
-    [HttpGet("me")]
-    public IActionResult Me()
-    {
-        return Ok(new
-        {
-            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-            Login = User.Identity?.Name
-        });
-    }
 }

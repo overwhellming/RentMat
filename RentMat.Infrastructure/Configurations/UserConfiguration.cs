@@ -16,6 +16,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(100);
         b.Property(u => u.Balance)
             .HasPrecision(18, 2);
+        b.Property(u => u.Role)
+            .HasConversion<string>();
         
         b.HasIndex(u => u.Login)
             .IsUnique();

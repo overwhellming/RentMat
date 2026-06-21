@@ -7,7 +7,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Booking;
 
-public class GetBookingsHandler
+public class GetAllBookingsHandler
 {
     private const int DefaultPageSize = 10;
     private const int MaxPageSize = 50;
@@ -15,7 +15,7 @@ public class GetBookingsHandler
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
 
-    public GetBookingsHandler(AppDbContext db, IFusionCache cache)
+    public GetAllBookingsHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
         _cache = cache;
