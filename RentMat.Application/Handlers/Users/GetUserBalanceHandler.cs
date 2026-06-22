@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.Exceptions;
+using RentMat.Application.Exceptions.Users;
 using RentMat.Infrastructure.Data;
 
 namespace RentMat.Application.Handlers.Users;

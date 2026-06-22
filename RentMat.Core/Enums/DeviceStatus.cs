@@ -2,7 +2,7 @@ namespace RentMat.Core.Enums;
 
 public enum DeviceStatus
 {
-    Unknown = 0,
+    Unavailable = 0,
     Available = 1,
     Rented = 2,
     Maintenance = 3,

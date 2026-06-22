@@ -10,11 +10,14 @@ public static class HandlerRegistrar
 {
     public static IServiceCollection RegisterHandlers(this IServiceCollection services)
     {
-        services.AddScoped<GetDevicesHandler>();
+        services.AddScoped<GetAllDevicesHandler>();
+        services.AddScoped<GetDeviceByIdHandler>();
+        services.AddScoped<CreateDeviceHandler>();
+        services.AddScoped<UpdateDeviceHandler>();
         
         services.AddScoped<GetAllBookingsHandler>();
         services.AddScoped<GetUserBookingsHandler>();
-        services.AddScoped<BookDeviceHandler>();
+        services.AddScoped<DeviceBookingHandler>();
         services.AddScoped<CompleteBookingHandler>();
         
         services.AddScoped<RegisterHandler>();

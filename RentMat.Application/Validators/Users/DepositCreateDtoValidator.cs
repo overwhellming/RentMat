@@ -1,7 +1,7 @@
 using FluentValidation;
 using RentMat.Application.DTOs.User;
 
-namespace RentMat.Application.Validators;
+namespace RentMat.Application.Validators.Users;
 
 public class DepositCreateDtoValidator : AbstractValidator<DepositCreateDto>
 {

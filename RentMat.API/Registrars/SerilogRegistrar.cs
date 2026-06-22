@@ -9,7 +9,7 @@ internal static class SerilogRegistrar
         host.UseSerilog((ctx, loggerConfig) =>
         {
             loggerConfig
-                .MinimumLevel.Information()
+                .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Diagnostics", Serilog.Events.LogEventLevel.Information)
                 .Enrich.FromLogContext()

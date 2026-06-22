@@ -3,6 +3,10 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.Application.Exceptions;
+using RentMat.Application.Exceptions.Authentication;
+using RentMat.Application.Exceptions.Booking;
+using RentMat.Application.Exceptions.Devices;
+using RentMat.Application.Exceptions.Users;
 
 namespace RentMat.API.ExceptionHandling;
 
@@ -42,13 +46,18 @@ public class ExceptionHandler : IExceptionHandler
         {
             NotEnoughMoneyException ex => (HttpStatusCode.BadRequest, ex.Message),
             UserNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            DeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            DeviceAlreadyBookedException ex => (HttpStatusCode.BadRequest, ex.Message),
-            ActiveBookingNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            UserAlreadyExistsException ex => (HttpStatusCode.Conflict, ex.Message),
+            
             InvalidCredentialsException ex => (HttpStatusCode.Unauthorized, ex.Message),
             JwtKeyNotFoundException ex => (HttpStatusCode.InternalServerError, ex.Message),
-            UserAlreadyExistsException ex => (HttpStatusCode.Conflict, ex.Message),
+            
             BookingAccessDeniedException ex => (HttpStatusCode.Forbidden, ex.Message),
+            ActiveBookingNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            
+            DeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            DeviceIsBookedException ex => (HttpStatusCode.BadRequest, ex.Message),
+            DeviceCategoryNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            
             _ => (HttpStatusCode.InternalServerError, "An unexpected error occured")
         };
 }

@@ -1,7 +1,8 @@
 using FluentValidation;
 using RentMat.Application.DTOs.Authentication;
+using RentMat.Core.Constants;
 
-namespace RentMat.Application.Validators;
+namespace RentMat.Application.Validators.Authentication;
 
 public class RegisterDtoValidator : AbstractValidator<RegisterDto>
 {
@@ -16,12 +17,12 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .Matches(@"^\S+$")
-            .MaximumLength(50);
+            .MaximumLength(ValidationConstants.UserLoginMaxLength);
 
         RuleFor(x => x.Password)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .MinimumLength(8)
-            .MaximumLength(50);
+            .MinimumLength(ValidationConstants.UserPasswordMinLength)
+            .MaximumLength(ValidationConstants.UserPasswordMaxLength);
     }
 }

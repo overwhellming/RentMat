@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Core.Enums;
@@ -7,18 +8,20 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Devices;
 
-public class GetDevicesHandler
+public class GetAllDevicesHandler
 {
     private const int DefaultPageSize = 10;
     private const int MaxPageSize = 50;
     
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+    private readonly ILogger<GetAllDevicesHandler> _logger;
 
-    public GetDevicesHandler(IFusionCache cache, AppDbContext db)
+    public GetAllDevicesHandler(IFusionCache cache, AppDbContext db, ILogger<GetAllDevicesHandler> logger)
     {
         _cache = cache;
         _db = db;
+        _logger = logger;
     }
 
     public async Task<PagedResponse<DeviceResponseDto>> Handle(
@@ -42,6 +45,8 @@ public class GetDevicesHandler
             cacheKey,
             async (ctx, ct) =>
             {
+                _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
+                
                 var query = _db.Devices
                     .AsNoTracking();
 

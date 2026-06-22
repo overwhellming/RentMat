@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using RentMat.Application.Validators;
+using RentMat.Application.Validators.Authentication;
 
 namespace RentMat.Application.Registrars;
 

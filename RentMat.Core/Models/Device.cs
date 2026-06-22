@@ -9,7 +9,7 @@ public class Device
     public decimal HourRentPrice { get; set; }
     
     public int CategoryId { get; set; }
-    public DeviceCategory Category { get; set; } = null!; 
-    
-    public DeviceStatus Status { get; set; }
+    public DeviceCategory Category { get; set; } = null!;
+
+    public DeviceStatus Status { get; set; } = DeviceStatus.Unavailable;
 }

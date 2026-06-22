@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RentMat.Application.Exceptions;
+using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Services.Interfaces;
 using RentMat.Core.Models;
 

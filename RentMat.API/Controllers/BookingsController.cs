@@ -14,15 +14,15 @@ public class BookingsController : ControllerBase
     private const int DefaultPage = 1;
     private const int DefaultPageSize = 10;
 
-    private readonly BookDeviceHandler _bookDeviceHandler;
+    private readonly DeviceBookingHandler _deviceBookingHandler;
     private readonly CompleteBookingHandler _completeBookingHandler;
     private readonly GetAllBookingsHandler _getAllBookingsHandler;
     private readonly GetUserBookingsHandler _getUserBookingsHandler;
 
-    public BookingsController(BookDeviceHandler bookDeviceHandler, CompleteBookingHandler completeBookingHandler,
+    public BookingsController(DeviceBookingHandler deviceBookingHandler, CompleteBookingHandler completeBookingHandler,
         GetAllBookingsHandler getAllBookingsHandler, GetUserBookingsHandler getUserBookingsHandler)
     {
-        _bookDeviceHandler = bookDeviceHandler;
+        _deviceBookingHandler = deviceBookingHandler;
         _completeBookingHandler = completeBookingHandler;
         _getAllBookingsHandler = getAllBookingsHandler;
         _getUserBookingsHandler = getUserBookingsHandler;
@@ -54,7 +54,7 @@ public class BookingsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] BookingCreateDto dto, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
-        return Ok(await _bookDeviceHandler.Handle(dto, userId, cancellationToken));
+        return Ok(await _deviceBookingHandler.Handle(dto, userId, cancellationToken));
     }
 
     [Authorize]

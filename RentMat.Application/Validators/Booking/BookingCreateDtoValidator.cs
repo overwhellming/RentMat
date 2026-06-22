@@ -1,7 +1,7 @@
 using FluentValidation;
 using RentMat.Application.DTOs.RentalBooking;
 
-namespace RentMat.Application.Validators;
+namespace RentMat.Application.Validators.Booking;
 
 public class BookingCreateDtoValidator : AbstractValidator<BookingCreateDto>
 {
@@ -15,5 +15,6 @@ public class BookingCreateDtoValidator : AbstractValidator<BookingCreateDto>
         RuleFor(x => x.EndDate)
             .GreaterThan(x => x.StartDate)
             .WithMessage("End date must be after the start date");
+        
     }
 }

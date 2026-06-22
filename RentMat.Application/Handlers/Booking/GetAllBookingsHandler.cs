@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Core.Enums;
@@ -14,11 +15,13 @@ public class GetAllBookingsHandler
 
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
-
-    public GetAllBookingsHandler(AppDbContext db, IFusionCache cache)
+    private readonly ILogger<GetAllBookingsHandler> _logger;
+    
+    public GetAllBookingsHandler(AppDbContext db, IFusionCache cache, ILogger<GetAllBookingsHandler> logger)
     {
         _db = db;
         _cache = cache;
+        _logger = logger;
     }
 
     public async Task<PagedResponse<BookingResponseDto>> Handle(
@@ -42,6 +45,8 @@ public class GetAllBookingsHandler
             cacheKey,
             async (ctx, ct) =>
             {
+                _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
+                
                 IQueryable<Core.Models.Booking> query = _db.Bookings
                     .AsNoTracking()
                     .Include(b => b.Device);

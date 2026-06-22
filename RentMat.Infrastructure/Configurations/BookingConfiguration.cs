@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RentMat.Core.Constants;
 using RentMat.Core.Models;
 
 namespace RentMat.Infrastructure.Configurations;
@@ -12,7 +13,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
             .HasPrecision(18, 2);
         b.Property(r => r.Status)
             .HasConversion<string>()
-            .HasMaxLength(50);
+            .HasMaxLength(ValidationConstants.BookingStatusMaxLength);
         
         b.ToTable(t =>
         {

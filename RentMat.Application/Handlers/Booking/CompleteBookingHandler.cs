@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.Exceptions;
+using RentMat.Application.Exceptions.Booking;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
@@ -36,6 +37,7 @@ public class CompleteBookingHandler
 
         activeBooking.EndDate = completedAt;
         activeBooking.Status = BookingStatus.Completed;
+        activeBooking.Device.Status = DeviceStatus.Available;
         
         await _db.SaveChangesAsync(cancellationToken);
         await _cache.RemoveByTagAsync("bookings");
