@@ -16,12 +16,14 @@ public class DevicesController : ControllerBase
     private readonly GetAllDevicesHandler _allDevicesHandler;
     private readonly GetDeviceByIdHandler _deviceByIdHandler;
     private readonly UpdateDeviceHandler _updateDeviceHandler;
+    private readonly RetireDeviceHandler _retireDeviceHandler;
     
-    public DevicesController(GetAllDevicesHandler allDevicesHandler, GetDeviceByIdHandler deviceByIdHandler, UpdateDeviceHandler updateDeviceHandler)
+    public DevicesController(GetAllDevicesHandler allDevicesHandler, GetDeviceByIdHandler deviceByIdHandler, UpdateDeviceHandler updateDeviceHandler, RetireDeviceHandler retireDeviceHandler)
     {
         _allDevicesHandler = allDevicesHandler;
         _deviceByIdHandler = deviceByIdHandler;
         _updateDeviceHandler = updateDeviceHandler;
+        _retireDeviceHandler = retireDeviceHandler;
     }
 
     [HttpGet]
@@ -46,6 +48,14 @@ public class DevicesController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] DeviceUpdateDto dto, CancellationToken cancellationToken)
     {
         await _updateDeviceHandler.Handle(id, dto, cancellationToken);
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id:int}/retire")]
+    public async Task<IActionResult> Retire(int id, CancellationToken cancellationToken)
+    {
+        await _retireDeviceHandler.Handle(id, cancellationToken);
         return NoContent();
     }
 }

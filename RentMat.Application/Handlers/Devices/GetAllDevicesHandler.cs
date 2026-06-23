@@ -29,15 +29,17 @@ public class GetAllDevicesHandler
         int pageSize,
         string? search,
         DeviceStatus? status,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         if (page < 1)
             page = 1;
         if (pageSize < 1)
             pageSize = DefaultPageSize;
         else if (pageSize > MaxPageSize)
-            pageSize = 50;
+            pageSize = MaxPageSize;
 
+        search = search?.Trim().ToLowerInvariant();
+        
         var cacheKey =
             $"devices:page:{page}:page-size:{pageSize}:search:{search ?? string.Empty}:status:{status?.ToString() ?? "all"}";
 
@@ -52,8 +54,11 @@ public class GetAllDevicesHandler
 
                 if (!string.IsNullOrWhiteSpace(search))
                     query = query.Where(d => EF.Functions.ILike(d.Name, $"%{search}%"));
+                
                 if (status != null)
                     query = query.Where(d => d.Status == status);
+                else
+                    query = query.Where(d => d.Status != DeviceStatus.Retired);
 
                 var totalItems = await query.CountAsync(ct);
                 var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
@@ -80,7 +85,7 @@ public class GetAllDevicesHandler
                     TotalPages = totalPages
                 };
             },
-            tags: ["devices"],
+            tags: [CacheTags.Devices],
             token: cancellationToken);
     }
 }

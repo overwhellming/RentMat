@@ -44,7 +44,7 @@ public class ExceptionHandler : IExceptionHandler
     private (HttpStatusCode statusCode, string message) MapException(Exception exception)
         => exception switch
         {
-            NotEnoughMoneyException ex => (HttpStatusCode.BadRequest, ex.Message),
+            NotEnoughMoneyException ex => (HttpStatusCode.Conflict, ex.Message),
             UserNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
             UserAlreadyExistsException ex => (HttpStatusCode.Conflict, ex.Message),
             
@@ -52,11 +52,13 @@ public class ExceptionHandler : IExceptionHandler
             JwtKeyNotFoundException ex => (HttpStatusCode.InternalServerError, ex.Message),
             
             BookingAccessDeniedException ex => (HttpStatusCode.Forbidden, ex.Message),
-            ActiveBookingNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            BookingForDeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            BookingNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
             
             DeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            DeviceIsBookedException ex => (HttpStatusCode.BadRequest, ex.Message),
+            DeviceIsBookedException ex => (HttpStatusCode.Conflict, ex.Message),
             DeviceCategoryNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
+            DeviceIsNotAvailableException ex => (HttpStatusCode.Conflict, ex.Message),
             
             _ => (HttpStatusCode.InternalServerError, "An unexpected error occured")
         };

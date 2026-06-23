@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Core.Models;
@@ -39,7 +40,7 @@ public class CreateDeviceHandler
         _db.Devices.Add(device);
         await _db.SaveChangesAsync(cancellationToken);
 
-        await _cache.RemoveByTagAsync("devices");
+        await _cache.RemoveByTagAsync(CacheTags.Devices);
         
         return new DeviceResponseDto(device.Id, device.Name, device.HourRentPrice, categoryName,
             device.Status.ToString());

@@ -29,7 +29,7 @@ public class GetAllBookingsHandler
         int pageSize,
         string? search,
         BookingStatus? status,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         if (page < 1)
             page = 1;
@@ -37,6 +37,8 @@ public class GetAllBookingsHandler
             pageSize = DefaultPageSize;
         else if (pageSize > MaxPageSize)
             pageSize = MaxPageSize;
+        
+        search = search?.Trim().ToLowerInvariant();
 
         var cacheKey =
             $"bookings:page:{page}:page-size:{pageSize}:search:{search ?? string.Empty}:status:{status?.ToString() ?? "all"}";
@@ -76,7 +78,7 @@ public class GetAllBookingsHandler
                     TotalPages = totalPages
                 };
             },
-            tags: ["bookings"],
+            tags: [CacheTags.Bookings],
             token: cancellationToken);
     }
 }

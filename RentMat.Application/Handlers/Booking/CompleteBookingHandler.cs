@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Common;
 using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Booking;
 using RentMat.Core.Enums;
@@ -28,7 +29,7 @@ public class CompleteBookingHandler
                     cancellationToken);
 
         if (activeBooking == null)
-            throw new ActiveBookingNotFoundException(deviceId);
+            throw new BookingForDeviceNotFoundException(deviceId);
 
         if (activeBooking.UserId != userId)
             throw new BookingAccessDeniedException();
@@ -40,6 +41,6 @@ public class CompleteBookingHandler
         activeBooking.Device.Status = DeviceStatus.Available;
         
         await _db.SaveChangesAsync(cancellationToken);
-        await _cache.RemoveByTagAsync("bookings");
+        await _cache.RemoveByTagAsync(CacheTags.Bookings);
     }
 }

@@ -14,15 +14,19 @@ public static class HandlerRegistrar
         services.AddScoped<GetDeviceByIdHandler>();
         services.AddScoped<CreateDeviceHandler>();
         services.AddScoped<UpdateDeviceHandler>();
+        services.AddScoped<RetireDeviceHandler>();
         
         services.AddScoped<GetAllBookingsHandler>();
+        services.AddScoped<GetBookingByIdHandler>();
         services.AddScoped<GetUserBookingsHandler>();
-        services.AddScoped<DeviceBookingHandler>();
+        services.AddScoped<CreateBookingHandler>();
         services.AddScoped<CompleteBookingHandler>();
         
         services.AddScoped<RegisterHandler>();
         services.AddScoped<LoginHandler>();
 
+        services.AddScoped<GetAllUsersHandler>();
+        services.AddScoped<GetUserByIdHandler>();
         services.AddScoped<GetUserBalanceHandler>();
         services.AddScoped<DepositUserBalanceHandler>();
         return services;

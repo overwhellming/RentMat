@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.Application.DTOs.User;
 using RentMat.Application.Handlers.Users;
+using RentMat.Core.Enums;
 
 namespace RentMat.API.Controllers;
 
@@ -10,25 +11,48 @@ namespace RentMat.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
+    private const int DefaultPageSize = 10;
+    private const int DefaultPage = 1;
+
+    private readonly GetAllUsersHandler _allUsersHandler;
+    private readonly GetUserByIdHandler _getUserByIdHandler;
     private readonly DepositUserBalanceHandler _depositUserBalanceHandler;
     private readonly GetUserBalanceHandler _getUserBalanceHandler;
 
     public UsersController(GetUserBalanceHandler getUserBalanceHandler,
-        DepositUserBalanceHandler depositUserBalanceHandler)
+        DepositUserBalanceHandler depositUserBalanceHandler, GetAllUsersHandler allUsersHandler,
+        GetUserByIdHandler getUserByIdHandler)
     {
         _getUserBalanceHandler = getUserBalanceHandler;
         _depositUserBalanceHandler = depositUserBalanceHandler;
+        _allUsersHandler = allUsersHandler;
+        _getUserByIdHandler = getUserByIdHandler;
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        CancellationToken cancellationToken,
+        [FromQuery] int page = DefaultPage,
+        [FromQuery] int pageSize = DefaultPageSize,
+        [FromQuery] string? search = null,
+        [FromQuery] UserRole? role = null)
+    {
+        return Ok(await _allUsersHandler.Handle(page, pageSize, search, role, cancellationToken));
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    {
+        return Ok(await _getUserByIdHandler.Handle(id, cancellationToken));
     }
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult GetMe()
+    public async Task<IActionResult> GetMe(CancellationToken cancellationToken)
     {
-        return Ok(new
-        {
-            UserId = GetUserId(),
-            Login = User.Identity?.Name
-        });
+        return Ok(await _getUserByIdHandler.Handle(GetUserId(), cancellationToken));
     }
 
     [Authorize]

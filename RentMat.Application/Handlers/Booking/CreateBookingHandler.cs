@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Common;
 using RentMat.Application.Exceptions;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Application.Exceptions.Devices;
@@ -11,13 +12,13 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Booking;
 
-public class DeviceBookingHandler
+public class CreateBookingHandler
 {
     private const int MinutesBetweenRents = 15;
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
     
-    public DeviceBookingHandler(AppDbContext db, IFusionCache cache)
+    public CreateBookingHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
         _cache = cache;
@@ -34,6 +35,9 @@ public class DeviceBookingHandler
                          .AsNoTracking()
                          .FirstOrDefaultAsync(d => d.Id == dto.DeviceId, cancellationToken) ??
                      throw new DeviceNotFoundException(dto.DeviceId);
+
+        if (device.Status != DeviceStatus.Available)
+            throw new DeviceIsNotAvailableException(dto.DeviceId);
         
         var buffer = TimeSpan.FromMinutes(MinutesBetweenRents);
         var hasConflicts = await _db.Bookings.AnyAsync(r =>
@@ -69,7 +73,7 @@ public class DeviceBookingHandler
         await _db.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
             
-        await _cache.RemoveByTagAsync("bookings");
+        await _cache.RemoveByTagAsync(CacheTags.Bookings);
             
         return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.StartDate, dto.EndDate, totalPrice);
     }

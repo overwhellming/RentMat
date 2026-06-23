@@ -14,18 +14,21 @@ public class BookingsController : ControllerBase
     private const int DefaultPage = 1;
     private const int DefaultPageSize = 10;
 
-    private readonly DeviceBookingHandler _deviceBookingHandler;
-    private readonly CompleteBookingHandler _completeBookingHandler;
     private readonly GetAllBookingsHandler _getAllBookingsHandler;
+    private readonly GetBookingByIdHandler _getBookingByIdHandler;
     private readonly GetUserBookingsHandler _getUserBookingsHandler;
+    private readonly CreateBookingHandler _createBookingHandler;
+    private readonly CompleteBookingHandler _completeBookingHandler;
 
-    public BookingsController(DeviceBookingHandler deviceBookingHandler, CompleteBookingHandler completeBookingHandler,
-        GetAllBookingsHandler getAllBookingsHandler, GetUserBookingsHandler getUserBookingsHandler)
+    public BookingsController(CreateBookingHandler createBookingHandler, CompleteBookingHandler completeBookingHandler,
+        GetAllBookingsHandler getAllBookingsHandler, GetUserBookingsHandler getUserBookingsHandler,
+        GetBookingByIdHandler getBookingByIdHandler)
     {
-        _deviceBookingHandler = deviceBookingHandler;
+        _createBookingHandler = createBookingHandler;
         _completeBookingHandler = completeBookingHandler;
         _getAllBookingsHandler = getAllBookingsHandler;
         _getUserBookingsHandler = getUserBookingsHandler;
+        _getBookingByIdHandler = getBookingByIdHandler;
     }
 
     [Authorize(Roles = "Admin")]
@@ -38,6 +41,13 @@ public class BookingsController : ControllerBase
         [FromQuery] BookingStatus? status = null)
     {
         return Ok(await _getAllBookingsHandler.Handle(page, pageSize, search, status, cancellationToken));
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    {
+        return Ok(await _getBookingByIdHandler.Handle(id, cancellationToken));
     }
 
     [Authorize]
@@ -54,11 +64,11 @@ public class BookingsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] BookingCreateDto dto, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
-        return Ok(await _deviceBookingHandler.Handle(dto, userId, cancellationToken));
+        return Ok(await _createBookingHandler.Handle(dto, userId, cancellationToken));
     }
 
     [Authorize]
-    [HttpPost("complete/{deviceId:int}")]
+    [HttpPost("{deviceId:int}/complete")]
     public async Task<IActionResult> Complete(int deviceId, CancellationToken cancellationToken)
     {
         var userId = GetUserId();

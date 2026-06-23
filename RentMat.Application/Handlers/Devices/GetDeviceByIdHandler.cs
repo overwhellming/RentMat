@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Infrastructure.Data;
@@ -44,7 +45,7 @@ public class GetDeviceByIdHandler
 
                 return device ?? throw new DeviceNotFoundException(deviceId);
             },
-            tags: ["devices"],
+            tags: [CacheTags.Devices],
             token: cancellationToken
         );
     }
