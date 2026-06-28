@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
+using RentMat.Application.Queries;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
@@ -12,9 +13,9 @@ public class GetAllDevicesHandler
 {
     private const int DefaultPageSize = 10;
     private const int MaxPageSize = 50;
-    
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+
+    private readonly AppDbContext _db;
     private readonly ILogger<GetAllDevicesHandler> _logger;
 
     public GetAllDevicesHandler(IFusionCache cache, AppDbContext db, ILogger<GetAllDevicesHandler> logger)
@@ -25,21 +26,16 @@ public class GetAllDevicesHandler
     }
 
     public async Task<PagedResponse<DeviceResponseDto>> Handle(
-        int page,
-        int pageSize,
-        string? search,
-        DeviceStatus? status,
+        GetAllDevicesQuery query,
         CancellationToken cancellationToken)
     {
-        if (page < 1)
-            page = 1;
-        if (pageSize < 1)
-            pageSize = DefaultPageSize;
-        else if (pageSize > MaxPageSize)
-            pageSize = MaxPageSize;
+        var page = query.Page < 1 ? 1 : query.Page;
+        var pageSize = query.PageSize < 1
+            ? DefaultPageSize
+            : Math.Min(query.PageSize, MaxPageSize);
+        var search = query.Search?.Trim().ToLowerInvariant();
+        var status = query.Status;
 
-        search = search?.Trim().ToLowerInvariant();
-        
         var cacheKey =
             $"devices:page:{page}:page-size:{pageSize}:search:{search ?? string.Empty}:status:{status?.ToString() ?? "all"}";
 
@@ -48,22 +44,21 @@ public class GetAllDevicesHandler
             async (ctx, ct) =>
             {
                 _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                
-                var query = _db.Devices
+
+                var devicesQuery = _db.Devices
                     .AsNoTracking();
 
                 if (!string.IsNullOrWhiteSpace(search))
-                    query = query.Where(d => EF.Functions.ILike(d.Name, $"%{search}%"));
-                
-                if (status != null)
-                    query = query.Where(d => d.Status == status);
-                else
-                    query = query.Where(d => d.Status != DeviceStatus.Retired);
+                    devicesQuery = devicesQuery.Where(d => EF.Functions.ILike(d.Name, $"%{search}%"));
 
-                var totalItems = await query.CountAsync(ct);
+                devicesQuery = status != null
+                    ? devicesQuery.Where(d => d.Status == status)
+                    : devicesQuery.Where(d => d.Status != DeviceStatus.Retired);
+
+                var totalItems = await devicesQuery.CountAsync(ct);
                 var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-                var devices = await query
+                var devices = await devicesQuery
                     .OrderBy(d => d.Id)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)

@@ -10,8 +10,8 @@ namespace RentMat.Application.Handlers.Users;
 
 public class GetUserByIdHandler
 {
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+    private readonly AppDbContext _db;
     private readonly ILogger<GetUserByIdHandler> _logger;
 
     public GetUserByIdHandler(AppDbContext db, IFusionCache cache, ILogger<GetUserByIdHandler> logger)

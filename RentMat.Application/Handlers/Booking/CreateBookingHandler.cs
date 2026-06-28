@@ -1,12 +1,10 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.Common;
-using RentMat.Application.Exceptions;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Core.Enums;
-using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -15,9 +13,9 @@ namespace RentMat.Application.Handlers.Booking;
 public class CreateBookingHandler
 {
     private const int MinutesBetweenRents = 15;
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
-    
+    private readonly AppDbContext _db;
+
     public CreateBookingHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
@@ -38,7 +36,7 @@ public class CreateBookingHandler
 
         if (device.Status != DeviceStatus.Available)
             throw new DeviceIsNotAvailableException(dto.DeviceId);
-        
+
         var buffer = TimeSpan.FromMinutes(MinutesBetweenRents);
         var hasConflicts = await _db.Bookings.AnyAsync(r =>
                 r.DeviceId == dto.DeviceId &&
@@ -48,7 +46,7 @@ public class CreateBookingHandler
             cancellationToken);
 
         if (hasConflicts) throw new DeviceIsBookedException(device.Id);
-        
+
         var priceForHour = device.HourRentPrice;
         var hours = (decimal)(dto.EndDate - dto.StartDate).TotalMinutes / 60m;
         var totalPrice = hours * priceForHour;
@@ -66,15 +64,16 @@ public class CreateBookingHandler
             TotalPrice = totalPrice,
             Status = BookingStatus.Created
         };
-            
+
         _db.Bookings.Add(booking);
         device.Status = DeviceStatus.Rented;
-            
+
         await _db.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
-            
+
         await _cache.RemoveByTagAsync(CacheTags.Bookings);
-            
-        return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.StartDate, dto.EndDate, totalPrice);
+
+        return new BookingResponseDto(booking.Id, device.Name, user.Login, booking.Status.ToString(), dto.StartDate,
+            dto.EndDate, totalPrice);
     }
 }

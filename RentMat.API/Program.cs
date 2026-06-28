@@ -1,4 +1,5 @@
 using FluentValidation.AspNetCore;
+using RentMat.API.Endpoints;
 using RentMat.API.ExceptionHandling;
 using RentMat.API.Registrars;
 using RentMat.Application.Registrars;
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.RegisterSerilog();
 
 builder.Services.RegisterDatabase(builder.Configuration);
-builder.Services.RegisterJwt(builder.Configuration);
+builder.Services.RegisterJwtAndAuthorization(builder.Configuration);
 builder.Services.RegisterSwagger();
 builder.Services.RegisterFusionCache();
 builder.Services.RegisterHandlers();
@@ -19,7 +20,7 @@ builder.Services.RegisterServices();
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddProblemDetails();
-builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
@@ -36,12 +37,15 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-if (!app.Environment.IsDevelopment()) 
+if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+
+app.MapDeviceEndpoints();
+app.MapAuthEndpoints();
+app.MapUserEndpoints();
 
 try
 {

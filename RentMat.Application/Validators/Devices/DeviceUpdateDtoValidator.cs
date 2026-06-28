@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using RentMat.Application.DTOs.Device;
 using RentMat.Core.Constants;

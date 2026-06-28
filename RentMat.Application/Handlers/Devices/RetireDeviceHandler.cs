@@ -9,9 +9,9 @@ namespace RentMat.Application.Handlers.Devices;
 
 public class RetireDeviceHandler
 {
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
-    
+    private readonly AppDbContext _db;
+
     public RetireDeviceHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
@@ -32,7 +32,7 @@ public class RetireDeviceHandler
                 cancellationToken);
         if (hasActiveBookings)
             throw new DeviceIsBookedException(deviceId);
-        
+
         device.Status = DeviceStatus.Retired;
         await _db.SaveChangesAsync(cancellationToken);
 

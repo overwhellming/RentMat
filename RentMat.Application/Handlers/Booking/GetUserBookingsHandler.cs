@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.DTOs.RentalBooking;
-using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Infrastructure.Data;
-using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Booking;
 

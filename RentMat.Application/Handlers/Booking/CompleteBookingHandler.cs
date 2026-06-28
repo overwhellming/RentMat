@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.Common;
-using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Booking;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
@@ -10,8 +9,8 @@ namespace RentMat.Application.Handlers.Booking;
 
 public class CompleteBookingHandler
 {
+    private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
-    private IFusionCache _cache;
 
     public CompleteBookingHandler(AppDbContext db, IFusionCache cache)
     {
@@ -33,13 +32,13 @@ public class CompleteBookingHandler
 
         if (activeBooking.UserId != userId)
             throw new BookingAccessDeniedException();
-        
+
         var completedAt = DateTimeOffset.UtcNow;
 
         activeBooking.EndDate = completedAt;
         activeBooking.Status = BookingStatus.Completed;
         activeBooking.Device.Status = DeviceStatus.Available;
-        
+
         await _db.SaveChangesAsync(cancellationToken);
         await _cache.RemoveByTagAsync(CacheTags.Bookings);
     }

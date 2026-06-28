@@ -9,7 +9,7 @@ public class Booking
     public DateTimeOffset EndDate { get; set; }
     public decimal TotalPrice { get; set; }
 
-    public BookingStatus Status { get; set; } 
+    public BookingStatus Status { get; set; }
 
     public int UserId { get; set; }
     public User User { get; set; } = null!;

@@ -15,6 +15,5 @@ public class BookingCreateDtoValidator : AbstractValidator<BookingCreateDto>
         RuleFor(x => x.EndDate)
             .GreaterThan(x => x.StartDate)
             .WithMessage("End date must be after the start date");
-        
     }
 }

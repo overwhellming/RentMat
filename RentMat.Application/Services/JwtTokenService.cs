@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Services.Interfaces;
 using RentMat.Core.Models;
@@ -32,21 +31,18 @@ public class JwtTokenService : IJwtTokenService
         };
 
         var keyString = jwt["Key"] ?? throw new JwtKeyNotFoundException();
-        var issuer = jwt["Issuer"]  ?? throw new JwtKeyNotFoundException();
-        var audience = jwt["Audience"]  ?? throw new JwtKeyNotFoundException();
-        
-        if (!int.TryParse(jwt["ExpireMinutes"], out var expireMinutes))
-        {
-            expireMinutes = 60;
-        }
-        
+        var issuer = jwt["Issuer"] ?? throw new JwtKeyNotFoundException();
+        var audience = jwt["Audience"] ?? throw new JwtKeyNotFoundException();
+
+        if (!int.TryParse(jwt["ExpireMinutes"], out var expireMinutes)) expireMinutes = 60;
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
+            issuer,
+            audience,
+            claims,
             expires: DateTime.UtcNow.AddMinutes(expireMinutes),
             signingCredentials: credentials
         );

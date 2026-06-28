@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Infrastructure.Data;
 
@@ -7,7 +6,7 @@ namespace RentMat.Application.Handlers.Users;
 
 public class GetUserBalanceHandler
 {
-    private  readonly AppDbContext _db;
+    private readonly AppDbContext _db;
 
     public GetUserBalanceHandler(AppDbContext db)
     {
