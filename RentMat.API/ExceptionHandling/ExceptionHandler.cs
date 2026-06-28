@@ -13,53 +13,41 @@ namespace RentMat.API.ExceptionHandling;
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
-
-    public ExceptionHandler(ILogger<ExceptionHandler> logger)
+    private readonly IProblemDetailsService _problemDetailsService;
+    
+    public ExceptionHandler(ILogger<ExceptionHandler> logger, IProblemDetailsService problemDetailsService)
     {
         _logger = logger;
+        _problemDetailsService = problemDetailsService;
     }
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
     {
-        var (statusCode, title) = MapException(exception);
+        var (statusCode, title, detail) = MapException(exception);
         
         if (statusCode == HttpStatusCode.InternalServerError)
             _logger.LogError(exception, "Unhandled exception occured");
         else
-            _logger.LogWarning(exception, "Handled exception: {Message}", exception.Message);
+            _logger.LogWarning(exception, "Handled exception: {Detail}", detail);
 
-        httpContext.Response.StatusCode = (int)statusCode;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
         {
-            Status = (int)statusCode,
-            Title = title,
-            Detail = statusCode == HttpStatusCode.InternalServerError ? null : exception.Message
-        }, cancellationToken: cancellationToken);
-
-        return true;
+            HttpContext = httpContext,
+            ProblemDetails = new ProblemDetails
+            {
+                Status = (int)statusCode,
+                Title = title,
+                Detail = detail
+            },
+            Exception = exception,
+        });
     }
 
-    private (HttpStatusCode statusCode, string message) MapException(Exception exception)
-        => exception switch
-        {
-            NotEnoughMoneyException ex => (HttpStatusCode.Conflict, ex.Message),
-            UserNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            UserAlreadyExistsException ex => (HttpStatusCode.Conflict, ex.Message),
-            
-            InvalidCredentialsException ex => (HttpStatusCode.Unauthorized, ex.Message),
-            JwtKeyNotFoundException ex => (HttpStatusCode.InternalServerError, ex.Message),
-            
-            BookingAccessDeniedException ex => (HttpStatusCode.Forbidden, ex.Message),
-            BookingForDeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            BookingNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            
-            DeviceNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            DeviceIsBookedException ex => (HttpStatusCode.Conflict, ex.Message),
-            DeviceCategoryNotFoundException ex => (HttpStatusCode.NotFound, ex.Message),
-            DeviceIsNotAvailableException ex => (HttpStatusCode.Conflict, ex.Message),
-            
-            _ => (HttpStatusCode.InternalServerError, "An unexpected error occured")
-        };
+    private (HttpStatusCode statusCode, string title, string detail) MapException(Exception exception)
+    {
+        if (exception is IExceptionBase baseEx)
+            return (baseEx.StatusCode, baseEx.Title, exception.Message);
+        return (HttpStatusCode.InternalServerError, "Internal server error", "An unexpected error occured");
+    }
 }
