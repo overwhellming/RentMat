@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.User;
-using RentMat.Core.Enums;
+using RentMat.Application.Queries;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
@@ -12,9 +12,9 @@ public class GetAllUsersHandler
 {
     private const int MaxPageSize = 50;
     private const int DefaultPageSize = 10;
+    private readonly IFusionCache _cache;
 
     private readonly AppDbContext _db;
-    private readonly IFusionCache _cache;
     private readonly ILogger<GetAllUsersHandler> _logger;
 
     public GetAllUsersHandler(AppDbContext db, IFusionCache cache, ILogger<GetAllUsersHandler> logger)
@@ -24,17 +24,15 @@ public class GetAllUsersHandler
         _logger = logger;
     }
 
-    public async Task<PagedResponse<UserResponseDto>> Handle(int page, int pageSize, string? search, UserRole? role,
+    public async Task<PagedResponse<UserResponseDto>> Handle(GetAllUsersQuery query,
         CancellationToken cancellationToken)
     {
-        if (page < 1)
-            page = 1;
-        if (pageSize < 1)
-            pageSize = DefaultPageSize;
-        else if (pageSize > MaxPageSize)
-            pageSize = MaxPageSize;
-        
-        search = search?.Trim().ToLowerInvariant();
+        var page = query.Page < 1 ? 1 : query.Page;
+        var pageSize = query.PageSize < 1
+            ? DefaultPageSize
+            : Math.Min(query.PageSize, MaxPageSize);
+        var search = query.Search?.Trim().ToLowerInvariant();
+        var role = query.Role;
 
         var cacheKey =
             $"users:page:{page}:page-size:{pageSize}:search:{search ?? string.Empty}:role:{role?.ToString() ?? "all"}";
@@ -44,20 +42,20 @@ public class GetAllUsersHandler
             async (ctx, ct) =>
             {
                 _logger.LogDebug("Cache miss for key: {CacheKey}", cacheKey);
-                
-                var query = _db.Users
+
+                var usersQuery = _db.Users
                     .AsNoTracking();
 
                 if (!string.IsNullOrWhiteSpace(search))
-                    query = query.Where(u => EF.Functions.ILike(u.Login, $"%{search}%") ||
-                                             EF.Functions.ILike(u.Email, $"%{search}%"));
+                    usersQuery = usersQuery.Where(u => EF.Functions.ILike(u.Login, $"%{search}%") ||
+                                                       EF.Functions.ILike(u.Email, $"%{search}%"));
                 if (role != null)
-                    query = query.Where(u => u.Role == role);
+                    usersQuery = usersQuery.Where(u => u.Role == role);
 
-                var totalItems = await query.CountAsync(ct);
+                var totalItems = await usersQuery.CountAsync(ct);
                 var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-                var users = await query
+                var users = await usersQuery
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .Select(u => new UserResponseDto(
