@@ -10,10 +10,10 @@ namespace RentMat.Application.Handlers.Devices;
 
 public class GetDeviceByIdHandler
 {
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+    private readonly AppDbContext _db;
     private readonly ILogger<GetDeviceByIdHandler> _logger;
-    
+
     public GetDeviceByIdHandler(AppDbContext db, IFusionCache cache, ILogger<GetDeviceByIdHandler> logger)
     {
         _db = db;
@@ -30,7 +30,7 @@ public class GetDeviceByIdHandler
             async (ctx, ct) =>
             {
                 _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                
+
                 var device = await _db.Devices
                     .AsNoTracking()
                     .Where(d => d.Id == deviceId)

@@ -16,7 +16,7 @@ public class DeviceConfiguration : IEntityTypeConfiguration<Device>
         b.Property(d => d.Status)
             .HasConversion<string>()
             .HasMaxLength(ValidationConstants.DeviceStatusMaxLength);
-        
+
         b.HasOne(d => d.Category)
             .WithMany()
             .HasForeignKey(d => d.CategoryId)

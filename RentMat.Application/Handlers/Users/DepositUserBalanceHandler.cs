@@ -1,7 +1,5 @@
-using System.Data;
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.DTOs.User;
-using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;

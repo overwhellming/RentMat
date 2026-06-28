@@ -14,7 +14,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         b.Property(r => r.Status)
             .HasConversion<string>()
             .HasMaxLength(ValidationConstants.BookingStatusMaxLength);
-        
+
         b.ToTable(t =>
         {
             t.HasCheckConstraint(
@@ -26,7 +26,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
                 $"\"{nameof(Booking.TotalPrice)}\" >= 0"
             );
         });
-        
+
         b.HasOne(r => r.User)
             .WithMany()
             .HasForeignKey(r => r.UserId)

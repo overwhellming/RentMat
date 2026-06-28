@@ -10,8 +10,8 @@ namespace RentMat.Application.Handlers.Devices;
 
 public class UpdateDeviceHandler
 {
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+    private readonly AppDbContext _db;
 
     public UpdateDeviceHandler(AppDbContext db, IFusionCache cache)
     {

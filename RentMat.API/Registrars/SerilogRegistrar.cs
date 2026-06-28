@@ -1,4 +1,5 @@
 using Serilog;
+using Serilog.Events;
 
 namespace RentMat.API.Registrars;
 
@@ -10,8 +11,8 @@ internal static class SerilogRegistrar
         {
             loggerConfig
                 .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-                .MinimumLevel.Override("Microsoft.AspNetCore.Diagnostics", Serilog.Events.LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Diagnostics", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 .WriteTo.Seq(ctx.Configuration["Seq:DefaultConnection"] ?? "http://localhost:5341");
         });

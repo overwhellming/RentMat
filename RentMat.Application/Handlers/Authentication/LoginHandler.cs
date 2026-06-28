@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.DTOs.Authentication;
-using RentMat.Application.Exceptions;
 using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Services.Interfaces;
 using RentMat.Infrastructure.Data;

@@ -10,8 +10,8 @@ namespace RentMat.Application.Handlers.Booking;
 
 public class GetBookingByIdHandler
 {
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+    private readonly AppDbContext _db;
     private readonly ILogger<GetBookingByIdHandler> _logger;
 
     public GetBookingByIdHandler(AppDbContext db, IFusionCache cache, ILogger<GetBookingByIdHandler> logger)
@@ -30,7 +30,7 @@ public class GetBookingByIdHandler
             async (ctx, ct) =>
             {
                 _logger.LogDebug("Cache miss for key {CacheKey}", cacheKey);
-                
+
                 var booking = await _db.Bookings
                     .AsNoTracking()
                     .Where(b => b.Id == bookingId)
