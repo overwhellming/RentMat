@@ -37,9 +37,21 @@ internal static class UserEndpoints
             .WithName("GetMe")
             .WithSummary("Returns the current user")
             .Produces(401);
+        
+        group.MapGet("/me/balance", GetMyBalance)
+            .RequireAuthorization()
+            .WithName("GetMyBalance")
+            .WithSummary("Returns the current user's balance")
+            .Produces(401);
+
+        group.MapPost("/me/balance", Deposit)
+            .RequireAuthorization()
+            .WithName("Deposit")
+            .WithSummary("Deposit to the current user's balance")
+            .Produces(401);
     }
 
-    private static async Task<Ok<PagedResponse<UserResponseDto>>> GetAll([AsParameters] GetAllUsersQuery query, GetAllUsersHandler handler,
+    private static async Task<Ok<PagedResponse<UserResponseDto>>> GetAll(GetAllUsersQuery query, GetAllUsersHandler handler,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await handler.Handle(query, cancellationToken));
@@ -54,5 +66,17 @@ internal static class UserEndpoints
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await handler.Handle(user.GetUserId(), cancellationToken));
+    }
+
+    private static async Task<Ok<decimal>> GetMyBalance(ClaimsPrincipal user, GetUserBalanceHandler handler,
+        CancellationToken cancellationToken)
+    {
+        return TypedResults.Ok(await handler.Handle(user.GetUserId(), cancellationToken));
+    }
+
+    private static async Task<Ok<DepositResponseDto>> Deposit(DepositCreateDto dto, ClaimsPrincipal user,
+        DepositUserBalanceHandler handler, CancellationToken cancellationToken)
+    {
+        return TypedResults.Ok(await handler.Handle(dto.Amount, user.GetUserId(), cancellationToken));
     }
 }
