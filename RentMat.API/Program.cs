@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using FluentValidation.AspNetCore;
 using RentMat.API.Endpoints;
 using RentMat.API.ExceptionHandling;
@@ -46,6 +47,7 @@ app.UseAuthorization();
 app.MapDeviceEndpoints();
 app.MapAuthEndpoints();
 app.MapUserEndpoints();
+app.MapBookingEndpoints();
 
 try
 {

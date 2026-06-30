@@ -6,9 +6,9 @@ internal static class ClaimsPrincipalExtensions
 {
     public static int GetUserId(this ClaimsPrincipal user)
     {
-        var idValue = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return !int.TryParse(idValue, out var userId)
-            ? throw new UnauthorizedAccessException("Invalid user id claim")
-            : userId;
+        var value = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (value != null)
+            return int.Parse(value);
+        throw new UnauthorizedAccessException("Invalid user id claim");
     }
 }

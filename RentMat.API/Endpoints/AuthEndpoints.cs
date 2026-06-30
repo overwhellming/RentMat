@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Handlers.Authentication;
 
@@ -13,28 +14,26 @@ internal static class AuthEndpoints
         group.MapPost("/login", Login)
             .WithName("UserLogin")
             .WithSummary("Authenticates a user and returns a JWT token")
-            .Produces(200)
             .Produces(400)
             .Produces(401);
 
         group.MapPost("/register", Register)
             .WithName("UserRegistration")
             .WithSummary("Registers a user and returns a JWT token")
-            .Produces(200)
             .Produces(400)
             .Produces(409);
     }
 
-    private static async Task<IResult> Login(LoginDto dto, LoginHandler handler, CancellationToken cancellationToken)
+    private static async Task<Ok<AuthResponseDto>> Login( LoginDto dto, LoginHandler handler, CancellationToken cancellationToken)
     {
         var token = await handler.Handle(dto, cancellationToken);
-        return Results.Ok(new AuthResponseDto(token));
+        return TypedResults.Ok(new AuthResponseDto(token));
     }
 
-    private static async Task<IResult> Register(RegisterDto dto, RegisterHandler handler,
+    private static async Task<Ok<AuthResponseDto>> Register(RegisterDto dto, RegisterHandler handler,
         CancellationToken cancellationToken)
     {
         var token = await handler.Handle(dto, cancellationToken);
-        return Results.Ok(new AuthResponseDto(token));
+        return TypedResults.Ok(new AuthResponseDto(token));
     }
 }
