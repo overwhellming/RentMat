@@ -1,4 +1,5 @@
 using Microsoft.OpenApi;
+using RentMat.API.Common.Security;
 
 namespace RentMat.API.Registrars;
 
@@ -13,9 +14,10 @@ internal static class SwaggerRegistrar
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = "Bearer"
+                Scheme = "Bearer",
+                BearerFormat = "JWT"
             });
-
+            
             options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
                 [new OpenApiSecuritySchemeReference("Bearer", document)] = []

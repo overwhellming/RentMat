@@ -11,4 +11,6 @@ public class User
     public UserRole Role { get; set; } = UserRole.User;
     public decimal Balance { get; set; }
     public DateTimeOffset CreatedAt { get; init; }
-}
+
+    public ICollection<Deposit> Deposits { get; set; } = [];
+} 

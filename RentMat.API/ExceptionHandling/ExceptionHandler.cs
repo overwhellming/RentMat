@@ -1,12 +1,7 @@
 using System.Net;
-using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.Application.Exceptions;
-using RentMat.Application.Exceptions.Authentication;
-using RentMat.Application.Exceptions.Booking;
-using RentMat.Application.Exceptions.Devices;
-using RentMat.Application.Exceptions.Users;
 
 namespace RentMat.API.ExceptionHandling;
 
@@ -46,8 +41,12 @@ public class ExceptionHandler : IExceptionHandler
 
     private (HttpStatusCode statusCode, string title, string detail) MapException(Exception exception)
     {
-        if (exception is IExceptionBase baseEx)
-            return (baseEx.StatusCode, baseEx.Title, exception.Message);
-        return (HttpStatusCode.InternalServerError, "Internal server error", "An unexpected error occured");
+        return exception switch
+        {
+            IExceptionBase baseEx => (baseEx.StatusCode, baseEx.Title, exception.Message),
+            BadHttpRequestException badReqEx => (HttpStatusCode.BadRequest,
+                "One or more request parameters are invalid", badReqEx.Message),
+            _ => (HttpStatusCode.InternalServerError, "Internal server error", "An unexpected error occured")
+        };
     }
 }

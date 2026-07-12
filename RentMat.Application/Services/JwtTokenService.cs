@@ -34,7 +34,7 @@ public class JwtTokenService : IJwtTokenService
         var issuer = jwt["Issuer"] ?? throw new JwtKeyNotFoundException();
         var audience = jwt["Audience"] ?? throw new JwtKeyNotFoundException();
 
-        if (!int.TryParse(jwt["ExpireMinutes"], out var expireMinutes)) expireMinutes = 60;
+        if (!int.TryParse(jwt["ExpireMinutes"], out var expireMinutes)) expireMinutes = DefaultExpireMinutes;
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

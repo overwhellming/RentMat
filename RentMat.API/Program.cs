@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using FluentValidation.AspNetCore;
 using RentMat.API.Endpoints;
 using RentMat.API.ExceptionHandling;
@@ -18,15 +17,19 @@ builder.Services.RegisterHandlers();
 builder.Services.RegisterValidators();
 builder.Services.RegisterServices();
 
+builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddProblemDetails();
+
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+
 app.UseExceptionHandler();
+
+app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
 {
@@ -37,9 +40,6 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
-
-if (!app.Environment.IsDevelopment())
-    app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
