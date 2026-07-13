@@ -14,6 +14,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentMat.Infrastructure", "R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentMat.Application", "RentMat.Application\RentMat.Application.csproj", "{502A0CA0-BDD9-4411-BC17-C290F753CE0B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentMat.Application.UnitTests", "RentMat.Application.UnitTests\RentMat.Application.UnitTests.csproj", "{BCAEB109-05FD-44DF-A8D7-F03C0C339675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentMat.Application.IntegrationTests", "RentMat.Application.IntegrationTests\RentMat.Application.IntegrationTests.csproj", "{EF5E473B-6556-48D2-9CC1-39D10F484E0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{502A0CA0-BDD9-4411-BC17-C290F753CE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{502A0CA0-BDD9-4411-BC17-C290F753CE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{502A0CA0-BDD9-4411-BC17-C290F753CE0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCAEB109-05FD-44DF-A8D7-F03C0C339675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCAEB109-05FD-44DF-A8D7-F03C0C339675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCAEB109-05FD-44DF-A8D7-F03C0C339675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCAEB109-05FD-44DF-A8D7-F03C0C339675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF5E473B-6556-48D2-9CC1-39D10F484E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF5E473B-6556-48D2-9CC1-39D10F484E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF5E473B-6556-48D2-9CC1-39D10F484E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF5E473B-6556-48D2-9CC1-39D10F484E0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

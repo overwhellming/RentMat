@@ -1,0 +1,81 @@
+using FluentValidation.TestHelper;
+using RentMat.Application.DTOs.Device;
+using RentMat.Application.Validators.Devices;
+using RentMat.Core.Constants;
+
+namespace RentMat.Application.UnitTests.Validators.Devices;
+
+public class DeviceCreateDtoValidatorTests
+{
+    private readonly DeviceCreateDtoValidator _validator = new();
+
+    [Fact]
+    public void ShouldBeValid_When_Dto_Is_Correct()
+    {
+        var dto = new DeviceCreateDto
+        (
+            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
+            HourRentPrice: 1000,
+            CategoryId: 1
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void ShouldHaveError_When_Name_Is_Empty()
+    {
+        var dto = new DeviceCreateDto
+        (
+            Name: string.Empty,
+            HourRentPrice: 1000,
+            CategoryId: 1
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.Name);
+    }
+    
+    [Fact]
+    public void ShouldHaveError_When_Name_Exceed_MaximumLength()
+    {
+        var dto = new DeviceCreateDto
+        (
+            Name: new string('a', ValidationConstants.DeviceNameMaxLength + 1),
+            HourRentPrice: 1000,
+            CategoryId: 1
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.Name);
+    }
+    
+    [Fact]
+    public void ShouldHaveError_When_HourRentPrice_Is_Zero()
+    {
+        var dto = new DeviceCreateDto
+        (
+            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
+            HourRentPrice: 0,
+            CategoryId: 1
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.HourRentPrice);
+    }
+    
+    [Fact]
+    public void ShouldHaveError_When_CategoryId_Is_Zero()
+    {
+        var dto = new DeviceCreateDto
+        (
+            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
+            HourRentPrice: 1000,
+            CategoryId: 0
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.CategoryId);
+    }
+}

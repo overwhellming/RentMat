@@ -7,13 +7,14 @@ public class BookingCreateDtoValidator : AbstractValidator<BookingCreateDto>
 {
     public BookingCreateDtoValidator()
     {
+        RuleFor(x => x.DeviceId)
+            .GreaterThan(0);
+        
         RuleFor(x => x.StartDate)
-            .GreaterThanOrEqualTo(x => DateTimeOffset.UtcNow)
+            .Cascade(CascadeMode.Stop)
+            .GreaterThanOrEqualTo(_ => DateTimeOffset.UtcNow)
+            .WithMessage("Start date cannot be in the past")
             .LessThan(x => x.EndDate)
-            .WithMessage("Start date must be in the future and before the end date");
-
-        RuleFor(x => x.EndDate)
-            .GreaterThan(x => x.StartDate)
-            .WithMessage("End date must be after the start date");
+            .WithMessage("Start date must be before the end date");
     }
 }

@@ -8,6 +8,6 @@ public class DepositCreateDtoValidator : AbstractValidator<DepositCreateDto>
     public DepositCreateDtoValidator()
     {
         RuleFor(d => d.Amount)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThan(0);
     }
 }

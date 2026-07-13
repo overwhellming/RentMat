@@ -65,48 +65,6 @@ namespace RentMat.Infrastructure.Migrations
 
                             t.HasCheckConstraint("CK_RentalBooking_TotalPrice_NonNegative", "\"TotalPrice\" >= 0");
                         });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DeviceId = 1,
-                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 10, 15, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 10, 10, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Status = "Completed",
-                            TotalPrice = 750m,
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DeviceId = 2,
-                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 22, 18, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 20, 18, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Status = "Created",
-                            TotalPrice = 5760m,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DeviceId = 3,
-                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 17, 12, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 16, 12, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Status = "Active",
-                            TotalPrice = 4800m,
-                            UserId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DeviceId = 2,
-                            EndDate = new DateTimeOffset(new DateTime(2026, 6, 25, 17, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            StartDate = new DateTimeOffset(new DateTime(2026, 6, 25, 9, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Status = "Cancelled",
-                            TotalPrice = 960m,
-                            UserId = 1
-                        });
                 });
 
             modelBuilder.Entity("RentMat.Core.Models.Deposit", b =>
@@ -118,7 +76,8 @@ namespace RentMat.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -129,6 +88,8 @@ namespace RentMat.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "CreatedAt");
 
                     b.ToTable("Deposits");
                 });
@@ -163,40 +124,6 @@ namespace RentMat.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Devices");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CategoryId = 1,
-                            HourRentPrice = 150m,
-                            Name = "PlayStation 5 Pro",
-                            Status = "Available"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CategoryId = 1,
-                            HourRentPrice = 120m,
-                            Name = "Xbox Series X",
-                            Status = "Rented"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CategoryId = 2,
-                            HourRentPrice = 200m,
-                            Name = "Meta Quest 3 (128GB)",
-                            Status = "Rented"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CategoryId = 3,
-                            HourRentPrice = 350m,
-                            Name = "ASUS ROG (RTX 4090, i9)",
-                            Status = "Maintenance"
-                        });
                 });
 
             modelBuilder.Entity("RentMat.Core.Models.DeviceCategory", b =>
@@ -218,23 +145,6 @@ namespace RentMat.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("DeviceCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Консоли"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "VR-Шлемы"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Мощные ПК"
-                        });
                 });
 
             modelBuilder.Entity("RentMat.Core.Models.User", b =>
@@ -281,38 +191,6 @@ namespace RentMat.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Balance = 5000m,
-                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "dragonborn@tamriel.com",
-                            HashedPassword = "hash",
-                            Login = "Dovahkiin",
-                            Role = "User"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Balance = 15000m,
-                            CreatedAt = new DateTimeOffset(new DateTime(2024, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "geralt@kaermorhen.com",
-                            HashedPassword = "hash",
-                            Login = "Geralt",
-                            Role = "User"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Balance = 25000m,
-                            CreatedAt = new DateTimeOffset(new DateTime(2024, 3, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "shepard@normandy.com",
-                            HashedPassword = "hash",
-                            Login = "Shepard",
-                            Role = "User"
-                        });
                 });
 
             modelBuilder.Entity("RentMat.Core.Models.Booking", b =>
@@ -337,9 +215,9 @@ namespace RentMat.Infrastructure.Migrations
             modelBuilder.Entity("RentMat.Core.Models.Deposit", b =>
                 {
                     b.HasOne("RentMat.Core.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Deposits")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -354,6 +232,11 @@ namespace RentMat.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("RentMat.Core.Models.User", b =>
+                {
+                    b.Navigation("Deposits");
                 });
 #pragma warning restore 612, 618
         }
