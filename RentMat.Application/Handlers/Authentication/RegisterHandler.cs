@@ -23,7 +23,11 @@ public class RegisterHandler
 
     public async Task<string> Handle(RegisterDto dto, CancellationToken cancellationToken = default)
     {
-        var userExists = await _db.Users.AnyAsync(u => u.Login == dto.Login || u.Email == dto.Email,
+        var formattedLogin = dto.Login.Trim();
+        var formattedEmail = dto.Email.Trim().ToLowerInvariant();
+        
+        var userExists = await _db.Users.AnyAsync(u => u.Login == formattedLogin 
+                                                       || u.Email == formattedEmail,
             cancellationToken);
 
         if (userExists)

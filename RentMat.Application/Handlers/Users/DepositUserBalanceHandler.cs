@@ -15,7 +15,7 @@ public class DepositUserBalanceHandler
         _db = db;
     }
 
-    public async Task<DepositResponseDto> Handle(decimal amount, int userId, CancellationToken cancellationToken)
+    public async Task<DepositCreatedResponseDto> Handle(decimal amount, int userId, CancellationToken cancellationToken)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
@@ -32,6 +32,6 @@ public class DepositUserBalanceHandler
         user.Balance += amount;
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new DepositResponseDto(deposit.Id, deposit.Amount, deposit.CreatedAt, user.Balance);
+        return new DepositCreatedResponseDto(deposit.Id, deposit.Amount, deposit.CreatedAt, user.Balance);
     }
 }
