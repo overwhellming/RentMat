@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using RentMat.Application.DTOs.User;
 using RentMat.Application.Validators.Users;
+using RentMat.Core.Constants;
 
 namespace RentMat.Application.UnitTests.Validators.Users;
 
@@ -26,6 +27,18 @@ public class DepositCreateDtoValidatorTests
         var dto = new DepositCreateDto
         (
             Amount: 0
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.Amount);
+    }
+
+    [Fact]
+    public void ShouldHaveError_When_Amount_Exceed_MaxDepositAmount()
+    {
+        var dto = new DepositCreateDto
+        (
+            Amount: ValidationConstants.MaxDepositAmount + 1
         );
 
         var result = _validator.TestValidate(dto);

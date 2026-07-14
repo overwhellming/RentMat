@@ -22,9 +22,9 @@ public class LoginHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ReturnJwtToken_WhenCredentials_Are_Valid()
+    public async Task Should_ReturnJwtToken_When_Credentials_Are_Valid()
     {
-        var user = await CreateUserAsync(new RegisterDto("john", "john@test.com", CorrectPassword));
+        var user = await CreateUserAsync(password: CorrectPassword);
         var dto = new LoginDto(user.Login, CorrectPassword);
 
         var token = await _handler.Handle(dto, CancellationToken.None);
@@ -32,7 +32,7 @@ public class LoginHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowInvalidCredentialsException_WhenUserDoesNotExist()
+    public async Task Should_ThrowInvalidCredentialsException_When_UserDoesNotExist()
     {
         var dto = new LoginDto("john", CorrectPassword);
         await Assert.ThrowsAsync<InvalidCredentialsException>(() => 
@@ -40,9 +40,9 @@ public class LoginHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowInvalidCredentialsException_WhenPassword_Is_Invalid()
+    public async Task Should_ThrowInvalidCredentialsException_When_Password_Is_Invalid()
     {
-        await CreateUserAsync(new RegisterDto("john", "john@test.com", CorrectPassword));
+        await CreateUserAsync(password:CorrectPassword);
         var dto = new LoginDto("john", "incorrectpassword");
         await Assert.ThrowsAsync<InvalidCredentialsException>(() => 
             _handler.Handle(dto, CancellationToken.None));

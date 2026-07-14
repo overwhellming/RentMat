@@ -15,4 +15,6 @@ public static class ValidationConstants
     public const int UserRoleMaxLength = 50;
 
     public const int BookingStatusMaxLength = 50;
+
+    public const decimal MaxDepositAmount = 2_000_000;
 }

@@ -10,10 +10,10 @@ namespace RentMat.Application.Handlers.Users;
 
 public class GetAllUsersHandler
 {
-    private const int MaxPageSize = 50;
-    private const int DefaultPageSize = 10;
+    public const int MaxPageSize = 50;
+    public const int DefaultPageSize = 10;
+    
     private readonly IFusionCache _cache;
-
     private readonly AppDbContext _db;
     private readonly ILogger<GetAllUsersHandler> _logger;
 

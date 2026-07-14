@@ -34,7 +34,7 @@ public class RegisterHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ReturnJwtToken_WhenCredentials_Are_Valid()
+    public async Task Should_ReturnJwtToken_When_Credentials_Are_Valid()
     {
         var dto = new RegisterDto(Login, Email, Password);
         var token = await _handler.Handle(dto, CancellationToken.None);
@@ -47,32 +47,32 @@ public class RegisterHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowUserAlreadyExistsException_WhenUserExists()
+    public async Task Should_ThrowUserAlreadyExistsException_When_UserExists()
     {
         var dto = new RegisterDto(Login, Email, Password);
-        await CreateUserAsync(dto);
+        await CreateUserAsync(Login, Email,  password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>
             _handler.Handle(dto, CancellationToken.None));
     }
 
     [Fact]
-    public async Task Should_ThrowUserAlreadyExistsException_WhenTrimmedEmail_AlreadyExists()
+    public async Task Should_ThrowUserAlreadyExistsException_When_TrimmedEmail_AlreadyExists()
     {
-        await CreateUserAsync(new RegisterDto("Mark", Email, Password));
+        await CreateUserAsync("Mark", Email,  password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>
             _handler.Handle(new RegisterDto(Login, Email + " ", Password), CancellationToken.None));
     }
 
     [Fact]
-    public async Task Should_ThrowUserAlreadyExistsException_WhenTrimmedLogin_AlreadyExists()
+    public async Task Should_ThrowUserAlreadyExistsException_When_TrimmedLogin_AlreadyExists()
     {
-        await CreateUserAsync(new RegisterDto(Login, Email, Password));
+        await CreateUserAsync(Login, Email, password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>
             _handler.Handle(new RegisterDto(Login + " ", Email, Password), CancellationToken.None));
     }
 
     [Fact]
-    public async Task Should_InvalidateCache_WhenUserRegistered()
+    public async Task Should_InvalidateCache_When_UserRegistered()
     {
         const string key = "key";
         const string value = "data";

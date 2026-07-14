@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using RentMat.Infrastructure.Data;
 using Respawn;
 using Testcontainers.PostgreSql;
+using Testcontainers.Redis;
 
 namespace RentMat.Application.IntegrationTests.Infrastructure;
 
@@ -15,7 +17,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 {
     private string _connectionString = null!;
     private Respawner _respawner = null!;
-    
+
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18-alpine")
         .WithDatabase("rentmat_test")
         .WithUsername("postgres")
@@ -25,7 +27,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
-
+        
         builder.ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
@@ -49,6 +51,9 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
                     .UseNpgsql(_container.GetConnectionString());
             });
         });
+
+        builder.ConfigureLogging(logging =>
+            logging.ClearProviders());
     }
 
     public async Task InitializeAsync()
