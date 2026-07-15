@@ -22,7 +22,7 @@ public class LoginHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ReturnJwtToken_When_Credentials_Are_Valid()
+    public async Task Should_Return_JwtToken_When_Credentials_Are_Valid()
     {
         var user = await CreateUserAsync(password: CorrectPassword);
         var dto = new LoginDto(user.Login, CorrectPassword);
@@ -32,7 +32,7 @@ public class LoginHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowInvalidCredentialsException_When_UserDoesNotExist()
+    public async Task Should_Throw_InvalidCredentialsException_When_UserDoesNotExist()
     {
         var dto = new LoginDto("john", CorrectPassword);
         await Assert.ThrowsAsync<InvalidCredentialsException>(() => 
@@ -40,7 +40,7 @@ public class LoginHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowInvalidCredentialsException_When_Password_Is_Invalid()
+    public async Task Should_Throw_InvalidCredentialsException_When_Password_Is_Invalid()
     {
         await CreateUserAsync(password:CorrectPassword);
         var dto = new LoginDto("john", "incorrectpassword");

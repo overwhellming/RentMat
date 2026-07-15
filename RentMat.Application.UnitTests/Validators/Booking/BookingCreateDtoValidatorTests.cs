@@ -9,7 +9,7 @@ public class BookingCreateDtoValidatorTests
     private readonly BookingCreateDtoValidator _validator = new();
 
     [Fact]
-    public void ShouldBeValid_When_Dto_Is_Correct()
+    public void Should_BeValid_When_Dto_Is_Correct()
     {
         var dto = new BookingCreateDto
         (
@@ -23,7 +23,7 @@ public class BookingCreateDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_Id_Is_Zero()
+    public void Should_HaveError_When_Id_Is_Zero()
     {
         var dto = new BookingCreateDto
         (
@@ -37,7 +37,7 @@ public class BookingCreateDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_StartDate_Is_In_Past()
+    public void Should_HaveError_When_StartDate_Is_In_Past()
     {
         var dto = new BookingCreateDto
         (
@@ -52,7 +52,7 @@ public class BookingCreateDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_StartDate_Is_After_EndDate()
+    public void Should_HaveError_When_StartDate_Is_After_EndDate()
     {
         var dto = new BookingCreateDto
         (

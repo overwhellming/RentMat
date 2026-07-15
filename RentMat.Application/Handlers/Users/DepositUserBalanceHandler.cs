@@ -1,18 +1,22 @@
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Common;
 using RentMat.Application.DTOs.User;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Users;
 
 public class DepositUserBalanceHandler
 {
     private readonly AppDbContext _db;
-
-    public DepositUserBalanceHandler(AppDbContext db)
+    private readonly IFusionCache _cache;
+    
+    public DepositUserBalanceHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
+        _cache = cache;
     }
 
     public async Task<DepositCreatedResponseDto> Handle(decimal amount, int userId, CancellationToken cancellationToken)
@@ -32,6 +36,8 @@ public class DepositUserBalanceHandler
         user.Balance += amount;
         await _db.SaveChangesAsync(cancellationToken);
 
+        await _cache.RemoveByTagAsync(CacheTags.Users);
+        
         return new DepositCreatedResponseDto(deposit.Id, deposit.Amount, deposit.CreatedAt, user.Balance);
     }
 }

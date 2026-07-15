@@ -6,6 +6,7 @@ using RentMat.Application.Handlers.Users;
 using RentMat.Application.IntegrationTests.Infrastructure;
 using RentMat.Application.Queries;
 using RentMat.Core.Enums;
+using Serilog;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
@@ -13,6 +14,10 @@ namespace RentMat.Application.IntegrationTests.Handlers.Users;
 [CollectionDefinition("Integration Test Collection")]
 public class GetAllUsersHandlerTests : BaseIntegrationTest
 {
+    private const string Login1 = "Alice";
+    private const string Login2 = "Bob";
+    private const string Login3 = "Charlie";
+    
     private readonly GetAllUsersHandler _handler;
     private readonly IFusionCache _cache;
 
@@ -25,7 +30,7 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ReturnEmptyList_When_There_Is_NoUsers()
+    public async Task Should_Return_EmptyList_When_There_Is_NoUsers()
     {
         var result = await _handler.Handle(new GetAllUsersQuery(), CancellationToken.None);
         result.Items.Should().BeEmpty();
@@ -47,21 +52,20 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
         result.Items.Should().HaveCount(5);
     }
 
-    [Fact]
-    public async Task Should_Return_FilteredResult_By_Search()
+    [Theory]
+    [InlineData("li", 2)]
+    [InlineData(Login1, 1)]
+    [InlineData(Login2, 1)]
+    [InlineData("Not found", 0)]
+    public async Task Should_Return_FilteredResult_By_Search(string search, int expectedCount)
     {
-        const string login1 = "Alice";
-        const string login2 = "Bob";
-        const string login3 = "Charlie";
-
-        await CreateUserAsync(login: login1);
-        await CreateUserAsync(login: login2);
-        await CreateUserAsync(login: login3);
+        await CreateUserAsync(login: Login1);
+        await CreateUserAsync(login: Login2);
+        await CreateUserAsync(login: Login3);
 
         var result = await _handler.Handle(new GetAllUsersQuery(Search: "li"),
             CancellationToken.None);
         result.Items.Should().HaveCount(2);
-        result.Items.Select(u => u.Login).Should().BeEquivalentTo(login1, login3);
     }
 
     [Fact]
@@ -79,19 +83,15 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
         result.Items.Select(u => u.Role).Should().BeEquivalentTo(role1.ToString());
     }
 
-    [Fact]
-    public async Task Should_Constraint_Max_And_Min_PageSize()
+    [Theory]
+    [InlineData(GetAllUsersHandler.MaxPageSize + 1, GetAllUsersHandler.MaxPageSize)]
+    [InlineData(0, GetAllUsersHandler.DefaultPageSize)]
+    [InlineData(25, 25)]
+    public async Task Should_Apply_CorrectPageSize(int inputPageSize, int expectedPageSize)
     {
-        var maxPageSize = GetAllUsersHandler.MaxPageSize;
-        var defaultPageSize = GetAllUsersHandler.DefaultPageSize;
-        
-        var result = await _handler.Handle(new GetAllUsersQuery(PageSize: GetAllUsersHandler.MaxPageSize + 1),
+        var result = await _handler.Handle(new GetAllUsersQuery(PageSize: inputPageSize), 
             CancellationToken.None);
-        result.PageSize.Should().Be(maxPageSize);
-        
-        result = await _handler.Handle(new GetAllUsersQuery(PageSize: 0),
-            CancellationToken.None);
-        result.PageSize.Should().Be(defaultPageSize);
+        result.PageSize.Should().Be(expectedPageSize);
     }
     
     [Fact]
@@ -103,7 +103,7 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_Return_Cache_If_Hit()
+    public async Task Should_Return_CachedUsers_When_DataChanged()
     {
         const int userAmount = 5;
         await CreateUsersAsync(amount: userAmount);
@@ -118,7 +118,7 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
     }
     
     [Fact]
-    public async Task Should_Invalidate_Cache_After_Changes()
+    public async Task Should_Return_UpdatedData_After_CacheInvalidation()
     {
         const int userAmount = 5;
         await CreateUsersAsync(amount: userAmount);

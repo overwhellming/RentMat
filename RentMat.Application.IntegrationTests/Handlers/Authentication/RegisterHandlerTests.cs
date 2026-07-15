@@ -34,7 +34,7 @@ public class RegisterHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ReturnJwtToken_When_Credentials_Are_Valid()
+    public async Task Should_Return_JwtToken_When_Credentials_Are_Valid()
     {
         var dto = new RegisterDto(Login, Email, Password);
         var token = await _handler.Handle(dto, CancellationToken.None);
@@ -47,7 +47,7 @@ public class RegisterHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowUserAlreadyExistsException_When_UserExists()
+    public async Task Should_Throw_UserAlreadyExistsException_When_UserExists()
     {
         var dto = new RegisterDto(Login, Email, Password);
         await CreateUserAsync(Login, Email,  password: Password);
@@ -56,7 +56,7 @@ public class RegisterHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowUserAlreadyExistsException_When_TrimmedEmail_AlreadyExists()
+    public async Task Should_Throw_UserAlreadyExistsException_When_TrimmedEmail_AlreadyExists()
     {
         await CreateUserAsync("Mark", Email,  password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>
@@ -64,7 +64,7 @@ public class RegisterHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_ThrowUserAlreadyExistsException_When_TrimmedLogin_AlreadyExists()
+    public async Task Should_Throw_UserAlreadyExistsException_When_TrimmedLogin_AlreadyExists()
     {
         await CreateUserAsync(Login, Email, password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>

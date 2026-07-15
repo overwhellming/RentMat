@@ -10,7 +10,7 @@ public class DeviceCreateDtoValidatorTests
     private readonly DeviceCreateDtoValidator _validator = new();
 
     [Fact]
-    public void ShouldBeValid_When_Dto_Is_Correct()
+    public void Should_BeValid_When_Dto_Is_Correct()
     {
         var dto = new DeviceCreateDto
         (
@@ -24,7 +24,7 @@ public class DeviceCreateDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_Name_Is_Empty()
+    public void Should_HaveError_When_Name_Is_Empty()
     {
         var dto = new DeviceCreateDto
         (
@@ -38,7 +38,7 @@ public class DeviceCreateDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Name_Exceed_MaximumLength()
+    public void Should_HaveError_When_Name_Exceed_MaximumLength()
     {
         var dto = new DeviceCreateDto
         (
@@ -52,7 +52,7 @@ public class DeviceCreateDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_HourRentPrice_Is_Zero()
+    public void Should_HaveError_When_HourRentPrice_Is_Zero()
     {
         var dto = new DeviceCreateDto
         (
@@ -66,7 +66,7 @@ public class DeviceCreateDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_CategoryId_Is_Zero()
+    public void Should_HaveError_When_CategoryId_Is_Zero()
     {
         var dto = new DeviceCreateDto
         (

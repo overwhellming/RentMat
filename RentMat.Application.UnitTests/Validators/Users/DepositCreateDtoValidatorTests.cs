@@ -10,7 +10,7 @@ public class DepositCreateDtoValidatorTests
     private readonly DepositCreateDtoValidator _validator = new();
 
     [Fact]
-    public void ShouldBeValid_When_Dto_Is_Correct()
+    public void Should_BeValid_When_Dto_Is_Correct()
     {
         var dto = new DepositCreateDto
         (
@@ -22,7 +22,7 @@ public class DepositCreateDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_Amount_Is_Zero()
+    public void Should_HaveError_When_Amount_Is_Zero()
     {
         var dto = new DepositCreateDto
         (
@@ -34,7 +34,7 @@ public class DepositCreateDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_Amount_Exceed_MaxDepositAmount()
+    public void Should_HaveError_When_Amount_Exceed_MaxDepositAmount()
     {
         var dto = new DepositCreateDto
         (

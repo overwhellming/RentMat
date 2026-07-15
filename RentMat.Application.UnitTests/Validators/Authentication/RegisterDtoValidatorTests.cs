@@ -10,7 +10,7 @@ public class RegisterDtoValidatorTests
     private readonly RegisterDtoValidator _validator = new();
 
     [Fact]
-    public void ShouldBeValid_When_Dto_Is_Correct()
+    public void Should_BeValid_When_Dto_Is_Correct()
     {
         var dto = new RegisterDto
         (
@@ -24,7 +24,7 @@ public class RegisterDtoValidatorTests
     }
 
     [Fact]
-    public void ShouldHaveError_When_Email_Is_Empty()
+    public void Should_HaveError_When_Email_Is_Empty()
     {
         var dto = new RegisterDto
         (
@@ -38,7 +38,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Email_Is_Invalid()
+    public void Should_HaveError_When_Email_Is_Invalid()
     {
         var dto = new RegisterDto
         (
@@ -52,7 +52,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Login_Is_Empty()
+    public void Should_HaveError_When_Login_Is_Empty()
     {
         var dto = new RegisterDto
         (
@@ -66,7 +66,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Login_Contains_Whitespaces()
+    public void Should_HaveError_When_Login_Contains_Whitespaces()
     {
         var dto = new RegisterDto
         (
@@ -80,7 +80,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Login_Exceed_MaximumLength()
+    public void Should_HaveError_When_Login_Exceed_MaximumLength()
     {
         var dto = new RegisterDto
         (
@@ -94,7 +94,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Password_Is_Empty()
+    public void Should_HaveError_When_Password_Is_Empty()
     {
         var dto = new RegisterDto
         (
@@ -108,7 +108,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Password_Exceed_MaximumLength()
+    public void Should_HaveError_When_Password_Exceed_MaximumLength()
     {
         var dto = new RegisterDto
         (
@@ -122,7 +122,7 @@ public class RegisterDtoValidatorTests
     }
     
     [Fact]
-    public void ShouldHaveError_When_Password_Is_Shorter_Than_MinimumLength()
+    public void Should_HaveError_When_Password_Is_Shorter_Than_MinimumLength()
     {
         var dto = new RegisterDto
         (
