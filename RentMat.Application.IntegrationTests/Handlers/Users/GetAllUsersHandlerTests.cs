@@ -63,9 +63,9 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
         await CreateUserAsync(login: Login2);
         await CreateUserAsync(login: Login3);
 
-        var result = await _handler.Handle(new GetAllUsersQuery(Search: "li"),
+        var result = await _handler.Handle(new GetAllUsersQuery(Search: search),
             CancellationToken.None);
-        result.Items.Should().HaveCount(2);
+        result.Items.Should().HaveCount(expectedCount);
     }
 
     [Fact]

@@ -11,14 +11,15 @@ namespace RentMat.Application.Handlers.Devices;
 
 public class GetAllDevicesHandler
 {
-    private const int DefaultPageSize = 10;
-    private const int MaxPageSize = 50;
+    public const int DefaultPageSize = 10;
+    public const int MaxPageSize = 50;
+    
     private readonly IFusionCache _cache;
 
     private readonly AppDbContext _db;
     private readonly ILogger<GetAllDevicesHandler> _logger;
 
-    public GetAllDevicesHandler(IFusionCache cache, AppDbContext db, ILogger<GetAllDevicesHandler> logger)
+    public GetAllDevicesHandler(AppDbContext db, IFusionCache cache, ILogger<GetAllDevicesHandler> logger)
     {
         _cache = cache;
         _db = db;

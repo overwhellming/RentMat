@@ -38,6 +38,42 @@ public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, 
         return user;
     }
 
+    protected async Task<DeviceCategory> CreateDeviceCategoryAsync(string? name = null)
+    {
+        var suffix = Guid.NewGuid().ToString()[..6];
+        var category = new DeviceCategory
+        {
+            Name = name ?? $"Category_{suffix}"
+        };
+        DbContext.DeviceCategories.Add(category);
+        await DbContext.SaveChangesAsync();
+        return category;
+    }
+
+    protected async Task<Device> CreateDeviceAsync(string? name = null, decimal hourRentPrice = 0, 
+        DeviceStatus status = DeviceStatus.Available, string? categoryName = null)
+    {
+        var suffix = Guid.NewGuid().ToString()[..6];
+        var category = new DeviceCategory
+        {
+            Name = categoryName ?? $"Category_{suffix}"
+        };
+        DbContext.DeviceCategories.Add(category);
+        await DbContext.SaveChangesAsync();
+
+        var device = new Device
+        {
+            Name = name ?? $"Device{suffix}",
+            HourRentPrice = hourRentPrice,
+            Status = status,
+            CategoryId = category.Id
+        };
+        DbContext.Devices.Add(device);
+        await DbContext.SaveChangesAsync();
+        
+        return device;
+    }
+    
     protected async Task<List<User>> CreateUsersAsync(int amount = 10)
     {
         const string password = "Password123";
@@ -58,6 +94,29 @@ public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, 
         DbContext.AddRange(users);
         await DbContext.SaveChangesAsync();
         return users;
+    }
+    
+    protected async Task<List<Device>> CreateDevicesAsync(int amount = 10)
+    {
+        var devices = new List<Device>();
+
+        var category = await CreateDeviceCategoryAsync();
+        
+        for (var i = 0; i < amount; i++)
+        {
+            var user = new Device
+            {
+                Name = $"Device_{i}",
+                HourRentPrice = 0,
+                CategoryId = category.Id,
+                Status = DeviceStatus.Available
+            };
+            devices.Add(user);
+        }
+        
+        DbContext.AddRange(devices);
+        await DbContext.SaveChangesAsync();
+        return devices;
     }
 
     public async Task InitializeAsync()

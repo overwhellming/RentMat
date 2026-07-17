@@ -34,6 +34,10 @@ public class UpdateDeviceHandler
         var hasActiveBookings = await _db.Bookings.AnyAsync(b =>
                 b.DeviceId == deviceId && (b.Status == BookingStatus.Active || b.Status == BookingStatus.Created),
             cancellationToken);
+        hasActiveBookings = hasActiveBookings || 
+                            (await _db.Devices.FindAsync(device.Id, cancellationToken))
+                            .Status == DeviceStatus.Rented;
+        
         if (hasActiveBookings)
             throw new DeviceIsBookedException(deviceId);
 
