@@ -10,6 +10,9 @@ public class BookingCreateDtoValidator : AbstractValidator<BookingCreateDto>
         RuleFor(x => x.DeviceId)
             .GreaterThan(0);
         
+        RuleFor(x => x.UserId)
+            .GreaterThan(0);
+        
         RuleFor(x => x.StartDate)
             .Cascade(CascadeMode.Stop)
             .GreaterThanOrEqualTo(_ => DateTimeOffset.UtcNow)

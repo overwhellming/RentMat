@@ -85,9 +85,15 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
     }
-    
-    public Task DisposeAsync()
+
+    public override async ValueTask DisposeAsync()
     {
-        return _container.StopAsync();
+        await _container.StopAsync();
+        await base.DisposeAsync();
+    }
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        await DisposeAsync();
     }
 }

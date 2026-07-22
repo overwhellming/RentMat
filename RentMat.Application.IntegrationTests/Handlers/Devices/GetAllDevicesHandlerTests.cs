@@ -11,7 +11,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class GetAllDevicesHandlerTests : BaseIntegrationTest
 {
     private const string Name1 = "Laptop";
@@ -103,7 +103,7 @@ public class GetAllDevicesHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_Return_CachedUsers_When_DataChanged()
+    public async Task Should_Return_CachedUsers_If_CacheExists()
     {
         const int deviceAmount = 5;
         await CreateDevicesAsync(amount: deviceAmount);

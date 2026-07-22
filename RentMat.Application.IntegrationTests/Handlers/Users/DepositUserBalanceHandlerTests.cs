@@ -10,7 +10,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class DepositUserBalanceHandlerTests : BaseIntegrationTest
 {
     private readonly DepositUserBalanceHandler _handler;

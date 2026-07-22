@@ -5,7 +5,7 @@ using RentMat.Application.IntegrationTests.Infrastructure;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class GetUserBalanceHandlerTests : BaseIntegrationTest
 {
     private readonly GetUserBalanceHandler _handler;

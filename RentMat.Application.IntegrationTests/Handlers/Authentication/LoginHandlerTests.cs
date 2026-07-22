@@ -9,7 +9,7 @@ using RentMat.Application.Services.Interfaces;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 
-[CollectionDefinition("Integration Tests Collection")]
+[Collection("Integration Tests Collection")]
 public class LoginHandlerTests : BaseIntegrationTest
 {
     private const string CorrectPassword = "Password123";

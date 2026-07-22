@@ -10,8 +10,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Infrastructure;
 
-[Collection("Integration Tests Collection")]
-public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, IAsyncLifetime
+public class BaseIntegrationTest : IAsyncLifetime
 {
     private readonly IntegrationTestWebAppFactory _factory;
     private readonly IServiceScope _scope;
@@ -37,7 +36,29 @@ public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, 
         await DbContext.SaveChangesAsync();
         return user;
     }
+    
+    protected async Task<List<User>> CreateUsersAsync(int amount = 10)
+    {
+        const string password = "Password123";
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, workFactor:4);
+        var users = new List<User>();
 
+        for (var i = 0; i < amount; i++)
+        {
+            var user = new User
+            {
+                Login = $"User_{i}",
+                Email = $"user{i}@test.com",
+                HashedPassword = hashedPassword
+            };
+            users.Add(user);
+        }
+        
+        DbContext.AddRange(users);
+        await DbContext.SaveChangesAsync();
+        return users;
+    }
+    
     protected async Task<DeviceCategory> CreateDeviceCategoryAsync(string? name = null)
     {
         var suffix = Guid.NewGuid().ToString()[..6];
@@ -74,26 +95,32 @@ public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, 
         return device;
     }
     
-    protected async Task<List<User>> CreateUsersAsync(int amount = 10)
+    protected async Task<CreateBookingsResponse> CreateBookingsAsync(int amount = 10)
     {
-        const string password = "Password123";
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, workFactor:4);
-        var users = new List<User>();
+        var bookings = new List<Booking>();
 
+        var user = await CreateUserAsync();
+        var device = await CreateDeviceAsync();
+
+        var startDate = DateTimeOffset.UtcNow.AddDays(-1);
+        var endDate = DateTimeOffset.UtcNow.AddDays(1);
+        
         for (var i = 0; i < amount; i++)
         {
-            var user = new User
+            var booking = new Booking
             {
-                Login = $"User_{i}",
-                Email = $"user{i}@test.com",
-                HashedPassword = hashedPassword
+                StartDate = startDate,
+                EndDate = endDate,
+                UserId = user.Id,
+                DeviceId = device.Id,
+                Status = BookingStatus.Active
             };
-            users.Add(user);
+            bookings.Add(booking);
         }
         
-        DbContext.AddRange(users);
+        DbContext.AddRange(bookings);
         await DbContext.SaveChangesAsync();
-        return users;
+        return new CreateBookingsResponse(bookings, user.Id, device.Id);
     }
     
     protected async Task<List<Device>> CreateDevicesAsync(int amount = 10)
@@ -119,6 +146,28 @@ public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, 
         return devices;
     }
 
+    protected async Task<Booking> CreateBookingAsync(DateTimeOffset? startDate = null, DateTimeOffset? endDate = null, decimal totalPrice = 0,
+        BookingStatus? status = null, int? deviceId = null, int? userId = null, string? deviceName = null)
+    {
+        var user = await CreateUserAsync();
+        var device = await CreateDeviceAsync(name: deviceName);
+        
+        var booking = new Booking
+        {
+            StartDate = startDate ?? DateTimeOffset.UtcNow.AddDays(-1),
+            EndDate = endDate ?? DateTimeOffset.UtcNow.AddDays(1),
+            TotalPrice = totalPrice,
+            DeviceId = deviceId ?? device.Id,
+            UserId = userId ?? user.Id,
+            Status = status ?? BookingStatus.Active
+        };
+
+        DbContext.Bookings.Add(booking);
+        await DbContext.SaveChangesAsync();
+
+        return booking;
+    }
+    
     public async Task InitializeAsync()
     {
         await _factory.ResetDatabaseAsync();
@@ -131,3 +180,5 @@ public class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, 
         return Task.CompletedTask;
     }
 }
+
+public record CreateBookingsResponse(List<Booking> Bookings, int UserId, int DeviceId);

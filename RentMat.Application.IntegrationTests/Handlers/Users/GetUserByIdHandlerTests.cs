@@ -9,7 +9,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class GetUserByIdHandlerTests : BaseIntegrationTest
 {
     private readonly GetUserByIdHandler _handler;
@@ -29,6 +29,9 @@ public class GetUserByIdHandlerTests : BaseIntegrationTest
         const string login = "Alexi";
         var user = await CreateUserAsync(login: login);
         var response = await _handler.Handle(user.Id, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response.Id.Should().Be(user.Id);
         response.Login.Should().Be(login);
     }
 
@@ -40,7 +43,7 @@ public class GetUserByIdHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_Return_CachedUser_When_DataChanged()
+    public async Task Should_Return_CachedUser_If_CacheExists()
     {
         const decimal initialBalance = 100;
         var user = await CreateUserAsync(balance: initialBalance);
@@ -49,7 +52,7 @@ public class GetUserByIdHandlerTests : BaseIntegrationTest
         response.Balance.Should().Be(initialBalance);
 
         var userInDb = await DbContext.Users.FindAsync(user.Id);
-        userInDb.Balance = initialBalance + 1;
+        userInDb!.Balance = initialBalance + 1;
         await DbContext.SaveChangesAsync();
         
         response = await _handler.Handle(user.Id, CancellationToken.None);
@@ -66,7 +69,7 @@ public class GetUserByIdHandlerTests : BaseIntegrationTest
         response.Balance.Should().Be(initialBalance);
 
         var userInDb = await DbContext.Users.FindAsync(user.Id);
-        userInDb.Balance = initialBalance + 1;
+        userInDb!.Balance = initialBalance + 1;
         await DbContext.SaveChangesAsync();
         await _cache.RemoveByTagAsync(CacheTags.Users);
         

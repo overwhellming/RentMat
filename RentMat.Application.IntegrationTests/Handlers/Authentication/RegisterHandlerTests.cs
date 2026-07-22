@@ -13,7 +13,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 
-[CollectionDefinition("Integration Tests Collection")]
+[Collection("Integration Tests Collection")]
 public class RegisterHandlerTests : BaseIntegrationTest
 {
     private const string Login = "John";

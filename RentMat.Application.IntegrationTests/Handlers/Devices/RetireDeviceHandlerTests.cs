@@ -9,7 +9,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class RetireDeviceHandlerTests : BaseIntegrationTest
 {
     private readonly RetireDeviceHandler _handler;
@@ -31,6 +31,8 @@ public class RetireDeviceHandlerTests : BaseIntegrationTest
         await _handler.Handle(device.Id, CancellationToken.None);
         
         var deviceInDb = await DbContext.Devices.FindAsync(device.Id);
+        
+        deviceInDb.Should().NotBeNull();
         deviceInDb.Status.Should().Be(DeviceStatus.Retired);
     }
 

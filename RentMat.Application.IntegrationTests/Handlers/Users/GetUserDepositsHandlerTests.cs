@@ -2,12 +2,11 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using RentMat.Application.Handlers.Users;
 using RentMat.Application.IntegrationTests.Infrastructure;
-using RentMat.Core.Models;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class GetUserDepositsHandlerTests : BaseIntegrationTest
 {
     private readonly GetUserDepositsHandler _handler;

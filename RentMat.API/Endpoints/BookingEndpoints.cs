@@ -77,7 +77,7 @@ internal static class BookingEndpoints
     private static async Task<CreatedAtRoute<BookingResponseDto>> Create(BookingCreateDto dto, ClaimsPrincipal user, [FromServices]  CreateBookingHandler handler,
         CancellationToken cancellationToken)
     {
-        var booking = await handler.Handle(dto, user.GetUserId(), cancellationToken);
+        var booking = await handler.Handle(dto, cancellationToken);
         return TypedResults.CreatedAtRoute(booking, routeName: "GetBookingById", routeValues: new {id = booking.Id});
     }
 

@@ -18,24 +18,21 @@ public class CompleteBookingHandler
         _cache = cache;
     }
 
-    public async Task Handle(int deviceId, int userId, CancellationToken cancellationToken)
+    public async Task Handle(int bookingId, int userId, CancellationToken cancellationToken)
     {
         var activeBooking =
             await _db.Bookings
-                .Include(b => b.User)
                 .Include(b => b.Device)
-                .FirstOrDefaultAsync(b => b.DeviceId == deviceId && b.Status == BookingStatus.Active,
-                    cancellationToken);
+                .FirstOrDefaultAsync(b => b.Id == bookingId && b.Status == BookingStatus.Active
+                    , cancellationToken);
 
         if (activeBooking == null)
-            throw new BookingForDeviceNotFoundException(deviceId);
+            throw new ActiveBookingNotFoundException(bookingId);
 
         if (activeBooking.UserId != userId)
             throw new BookingAccessDeniedException();
 
-        var completedAt = DateTimeOffset.UtcNow;
-
-        activeBooking.EndDate = completedAt;
+        activeBooking.EndDate = DateTimeOffset.UtcNow;
         activeBooking.Status = BookingStatus.Completed;
         activeBooking.Device.Status = DeviceStatus.Available;
 

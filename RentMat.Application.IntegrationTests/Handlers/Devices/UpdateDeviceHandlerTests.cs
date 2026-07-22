@@ -10,7 +10,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class UpdateDeviceHandlerTests : BaseIntegrationTest
 {
     private readonly UpdateDeviceHandler _handler;
@@ -40,7 +40,7 @@ public class UpdateDeviceHandlerTests : BaseIntegrationTest
         await _handler.Handle(device.Id, dto, CancellationToken.None);
 
         var deviceInDb = await DbContext.Devices.FindAsync(device.Id);
-        deviceInDb.Name.Should().Be(newName);
+        deviceInDb!.Name.Should().Be(newName);
         deviceInDb.HourRentPrice.Should().Be(newRentPrice);
         deviceInDb.CategoryId.Should().Be(newCategoryId);
     }

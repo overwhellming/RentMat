@@ -11,7 +11,7 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
 
-[CollectionDefinition("Integration Test Collection")]
+[Collection("Integration Tests Collection")]
 public class GetAllUsersHandlerTests : BaseIntegrationTest
 {
     private const string Login1 = "Alice";
@@ -103,7 +103,7 @@ public class GetAllUsersHandlerTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_Return_CachedUsers_When_DataChanged()
+    public async Task Should_Return_CachedUsers_If_CacheExists()
     {
         const int userAmount = 5;
         await CreateUsersAsync(amount: userAmount);

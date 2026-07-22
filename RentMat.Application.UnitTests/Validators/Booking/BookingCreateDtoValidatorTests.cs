@@ -14,6 +14,7 @@ public class BookingCreateDtoValidatorTests
         var dto = new BookingCreateDto
         (
             DeviceId: 1,
+            UserId: 1,
             StartDate: DateTimeOffset.UtcNow.AddDays(1),
             EndDate: DateTimeOffset.UtcNow.AddDays(2)
         );
@@ -23,17 +24,33 @@ public class BookingCreateDtoValidatorTests
     }
 
     [Fact]
-    public void Should_HaveError_When_Id_Is_Zero()
+    public void Should_HaveError_When_DeviceId_Is_Zero()
     {
         var dto = new BookingCreateDto
         (
             DeviceId: 0,
+            UserId: 1,
             StartDate: DateTimeOffset.UtcNow.AddDays(1),
             EndDate: DateTimeOffset.UtcNow.AddDays(2)
         );
 
         var result = _validator.TestValidate(dto);
         result.ShouldHaveValidationErrorFor(x => x.DeviceId);
+    } 
+    
+    [Fact]
+    public void Should_HaveError_When_UserId_Is_Zero()
+    {
+        var dto = new BookingCreateDto
+        (
+            DeviceId: 1,
+            UserId: 0,
+            StartDate: DateTimeOffset.UtcNow.AddDays(1),
+            EndDate: DateTimeOffset.UtcNow.AddDays(2)
+        );
+
+        var result = _validator.TestValidate(dto);
+        result.ShouldHaveValidationErrorFor(x => x.UserId);
     }
 
     [Fact]
@@ -42,6 +59,7 @@ public class BookingCreateDtoValidatorTests
         var dto = new BookingCreateDto
         (
             DeviceId: 1,
+            UserId: 1,
             StartDate: DateTimeOffset.UtcNow.AddDays(-1),
             EndDate: DateTimeOffset.UtcNow.AddDays(2)
         );
@@ -57,6 +75,7 @@ public class BookingCreateDtoValidatorTests
         var dto = new BookingCreateDto
         (
             DeviceId: 1,
+            UserId: 1,
             StartDate: DateTimeOffset.UtcNow.AddDays(5),
             EndDate: DateTimeOffset.UtcNow.AddDays(2)
         );

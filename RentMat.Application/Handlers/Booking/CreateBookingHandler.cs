@@ -13,6 +13,7 @@ namespace RentMat.Application.Handlers.Booking;
 public class CreateBookingHandler
 {
     private const int MinutesBetweenRents = 15;
+    
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
 
@@ -22,12 +23,12 @@ public class CreateBookingHandler
         _cache = cache;
     }
 
-    public async Task<BookingResponseDto> Handle(BookingCreateDto dto, int userId,
+    public async Task<BookingResponseDto> Handle(BookingCreateDto dto,
         CancellationToken cancellationToken = default)
     {
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken) ??
-                   throw new UserNotFoundException(userId);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId, cancellationToken) ??
+                   throw new UserNotFoundException(dto.UserId);
 
         var device = await _db.Devices
                          .AsNoTracking()
@@ -58,7 +59,7 @@ public class CreateBookingHandler
         var booking = new Core.Models.Booking
         {
             DeviceId = dto.DeviceId,
-            UserId = userId,
+            UserId = dto.UserId,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
             TotalPrice = totalPrice,
