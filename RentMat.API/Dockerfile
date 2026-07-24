@@ -9,6 +9,8 @@ COPY RentMat.API/RentMat.API.csproj RentMat.API/
 COPY RentMat.Core/RentMat.Core.csproj RentMat.Core/
 COPY RentMat.Infrastructure/RentMat.Infrastructure.csproj RentMat.Infrastructure/
 COPY RentMat.Application/RentMat.Application.csproj RentMat.Application/
+COPY RentMat.Application.UnitTests/RentMat.Application.UnitTests.csproj RentMat.Application.UnitTests/
+COPY RentMat.Application.IntegrationTests/RentMat.Application.IntegrationTests.csproj RentMat.Application.IntegrationTests/
 RUN dotnet restore RentMat.sln
 COPY . .
 RUN dotnet build RentMat.API/RentMat.API.csproj -c Release -o /app/build
