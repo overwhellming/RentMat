@@ -28,22 +28,32 @@ public class RegisterHandlerTests : BaseIntegrationTest
         using var scope = factory.Services.CreateScope();
 
         _cache = scope.ServiceProvider.GetRequiredService<IFusionCache>();
+        var tokenService = scope.ServiceProvider.GetRequiredService<IJwtTokenService>();
+        
         _handler = new RegisterHandler(DbContext,
             _cache,
-            scope.ServiceProvider.GetRequiredService<IJwtTokenService>());
+            tokenService,
+            new LoginHandler(DbContext,tokenService));
     }
 
     [Fact]
-    public async Task Should_Return_JwtToken_When_Credentials_Are_Valid()
+    public async Task Should_Create_In_Database_And_Return_JwtToken_When_Credentials_Are_Valid()
     {
         var dto = new RegisterDto(Login, Email, Password);
-        var token = await _handler.Handle(dto, CancellationToken.None);
+        var response = await _handler.Handle(dto, CancellationToken.None);
 
-        token.Should().NotBeNullOrEmpty();
+        response.AccessToken.Should().NotBeNullOrEmpty();
+        response.RefreshToken.Should().NotBeNullOrEmpty();
 
         var userInDb = await DbContext.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
         userInDb.Should().NotBeNull();
         userInDb.Login.Should().Be(dto.Login);
+        
+        var refreshTokenInDb = await DbContext.RefreshTokenEntries
+            .FirstOrDefaultAsync(t => t.Token == response.RefreshToken);
+        refreshTokenInDb.Should().NotBeNull();
+        refreshTokenInDb.UserId.Should().Be(userInDb.Id);
+        refreshTokenInDb.IsRevoked.Should().BeFalse();
     }
 
     [Fact]

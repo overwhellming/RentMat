@@ -17,7 +17,7 @@ public class GetUserDepositsHandler
     public async Task<IEnumerable<DepositResponseDto>> Handle(int userId, CancellationToken cancellationToken)
     {
         var deposits = await _db.Deposits
-            .Where(d => userId == userId)
+            .Where(d => d.UserId == userId)
             .Select(d => new DepositResponseDto(
                 d.Id,
                 d.Amount,

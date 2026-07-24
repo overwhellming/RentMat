@@ -13,15 +13,17 @@ public class RegisterHandler
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
     private readonly IJwtTokenService _jwtTokenService;
-
-    public RegisterHandler(AppDbContext db, IFusionCache cache, IJwtTokenService jwtTokenService)
+    private readonly LoginHandler _loginHandler;
+    
+    public RegisterHandler(AppDbContext db, IFusionCache cache, IJwtTokenService jwtTokenService, LoginHandler loginHandler)
     {
         _db = db;
         _cache = cache;
         _jwtTokenService = jwtTokenService;
+        _loginHandler = loginHandler;
     }
 
-    public async Task<string> Handle(RegisterDto dto, CancellationToken cancellationToken = default)
+    public async Task<TokenResponseDto> Handle(RegisterDto dto, CancellationToken cancellationToken = default)
     {
         var formattedLogin = dto.Login.Trim();
         var formattedEmail = dto.Email.Trim().ToLowerInvariant();
@@ -48,6 +50,8 @@ public class RegisterHandler
         await _db.SaveChangesAsync(cancellationToken);
         await _cache.RemoveByTagAsync("users");
 
-        return _jwtTokenService.CreateToken(user);
+        var tokenResponse = await _loginHandler.Handle(new LoginDto(dto.Login, dto.Password), cancellationToken);
+        
+        return tokenResponse;
     }
 }

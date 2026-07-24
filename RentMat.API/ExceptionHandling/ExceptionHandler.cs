@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using RentMat.Application.Exceptions;
 
 namespace RentMat.API.ExceptionHandling;
@@ -46,6 +47,8 @@ public class ExceptionHandler : IExceptionHandler
             IExceptionBase baseEx => (baseEx.StatusCode, baseEx.Title, exception.Message),
             BadHttpRequestException badReqEx => (HttpStatusCode.BadRequest,
                 "One or more request parameters are invalid", badReqEx.Message),
+            SecurityTokenException securityTokenEx => (HttpStatusCode.Unauthorized,
+                    "Invalid token", securityTokenEx.Message), 
             _ => (HttpStatusCode.InternalServerError, "Internal server error", "An unexpected error occured")
         };
     }

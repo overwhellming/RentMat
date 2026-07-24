@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Authentication;
+using RentMat.Application.Handlers.Authentication;
 using RentMat.Core.Enums;
 using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;
@@ -15,6 +16,7 @@ public class BaseIntegrationTest : IAsyncLifetime
     private readonly IntegrationTestWebAppFactory _factory;
     private readonly IServiceScope _scope;
     private readonly IFusionCache _cache;
+    private readonly RegisterHandler _registerHandler;
     protected readonly AppDbContext DbContext;
 
     protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
@@ -23,8 +25,19 @@ public class BaseIntegrationTest : IAsyncLifetime
         _scope = factory.Services.CreateScope();
         DbContext = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
         _cache = _scope.ServiceProvider.GetRequiredService<IFusionCache>();
+        _registerHandler = _scope.ServiceProvider.GetRequiredService<RegisterHandler>();
     }
 
+    protected async Task<TokenResponseDto> RegisterUserAsync(string? login = null, string? email = null, string? password = null)
+    {
+        const string defaultPassword = "Password123";
+        const string defaultLogin = "LoginJohn";
+        const string defaultEmail = "john@test.com";
+
+        var dto = new RegisterDto(login ?? defaultLogin, email ?? defaultEmail, password ?? defaultPassword);
+        return await _registerHandler.Handle(dto, CancellationToken.None);
+    }
+    
     protected async Task<User> CreateUserAsync(string? login = null, string? email = null, UserRole role = UserRole.User, 
         string password = "Password123", decimal balance = 0)
     {

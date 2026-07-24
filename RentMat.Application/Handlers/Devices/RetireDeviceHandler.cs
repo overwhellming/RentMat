@@ -32,7 +32,7 @@ public class RetireDeviceHandler
                 cancellationToken);
 
         hasActiveBookings = hasActiveBookings || 
-                            (await _db.Devices.FindAsync(device.Id, cancellationToken))
+                            (await _db.Devices.FindAsync(device.Id, cancellationToken))!
                                 .Status == DeviceStatus.Rented;
         
         if (hasActiveBookings)
