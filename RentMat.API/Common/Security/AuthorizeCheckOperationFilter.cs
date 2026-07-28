@@ -19,9 +19,12 @@ internal class AuthorizeCheckOperationFilter : IOperationFilter
         if (!hasAuthorize || hasAllowAnonymous)
             return;
 
-        operation.Security.Add(new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
-        });
+        operation.Security =
+        [
+            new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+            }
+        ];
     }
 }
