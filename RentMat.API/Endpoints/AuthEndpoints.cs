@@ -13,16 +13,17 @@ internal static class AuthEndpoints
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth")
-            .WithTags("Authentication")
-            .AllowAnonymous();
+            .WithTags("Authentication");
 
         group.MapPost("/login", Login)
+            .AllowAnonymous()
             .WithName("UserLogin")
             .WithSummary("Authenticates a user and returns a JWT token")
             .ProducesProblem(400)
             .ProducesProblem(401);
 
         group.MapPost("/register", Register)
+            .AllowAnonymous()
             .WithName("UserRegistration")
             .WithSummary("Registers a user and returns a JWT token")
             .ProducesValidationProblem()
@@ -31,12 +32,13 @@ internal static class AuthEndpoints
 
         group.MapPost("/revoke", Revoke)
             .RequireAuthorization()
-            .WithTags("TokenRevoking")
+            .WithName("TokenRevoking")
             .WithSummary("Revokes current user's refresh token")
             .ProducesProblem(401);
         
         group.MapPost("/refresh", Refresh)
-            .WithTags("TokenRefreshing")
+            .RequireAuthorization()
+            .WithName("TokenRefreshing")
             .WithSummary("Refreshes current user's refresh token")
             .ProducesProblem(401);
     }

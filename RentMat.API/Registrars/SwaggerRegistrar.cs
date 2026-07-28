@@ -18,10 +18,7 @@ internal static class SwaggerRegistrar
                 BearerFormat = "JWT"
             });
             
-            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-            });
+            options.OperationFilter<AuthorizeCheckOperationFilter>();
         });
         return services;
     }
