@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using RentMat.Application.Commands.Devices;
 using RentMat.Application.Common;
-using RentMat.Application.DTOs.Device;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Application.Handlers.Devices;
 using RentMat.Application.IntegrationTests.Infrastructure;
@@ -11,15 +11,15 @@ using ZiggyCreatures.Caching.Fusion;
 namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 
 [Collection("Integration Tests Collection")]
-public class UpdateDeviceHandlerTests : BaseIntegrationTest
+public class UpdateDeviceCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly UpdateDeviceHandler _handler;
+    private readonly UpdateDeviceCommandHandler _commandHandler;
     private readonly IFusionCache _cache;
-    public UpdateDeviceHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
+    public UpdateDeviceCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
         _cache = scope.ServiceProvider.GetRequiredService<IFusionCache>();
-        _handler = new UpdateDeviceHandler(DbContext, _cache);
+        _commandHandler = new UpdateDeviceCommandHandler(DbContext, _cache);
     }
 
     [Fact]
@@ -36,8 +36,8 @@ public class UpdateDeviceHandlerTests : BaseIntegrationTest
         device.HourRentPrice.Should().NotBe(newRentPrice);
         device.CategoryId.Should().NotBe(newCategoryId);
         
-        var dto = new DeviceUpdateDto(newName, newRentPrice, newCategoryId);
-        await _handler.Handle(device.Id, dto, CancellationToken.None);
+        var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, newCategoryId);
+        await _commandHandler.Handle(command, CancellationToken.None);
 
         var deviceInDb = await DbContext.Devices.FindAsync(device.Id);
         deviceInDb!.Name.Should().Be(newName);
@@ -53,10 +53,10 @@ public class UpdateDeviceHandlerTests : BaseIntegrationTest
         const int notExistingId = 999;
         
         var device = await CreateDeviceAsync();
-        var dto = new DeviceUpdateDto(newName, newRentPrice, notExistingId);
+        var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, notExistingId);
 
         await Assert.ThrowsAsync<DeviceCategoryNotFoundException>(() =>
-            _handler.Handle(device.Id, dto, CancellationToken.None));
+            _commandHandler.Handle(command, CancellationToken.None));
     }
     [Fact]
     public async Task Should_Throw_DeviceNotFoundException_WhenDeviceDoesNotExist()
@@ -67,11 +67,11 @@ public class UpdateDeviceHandlerTests : BaseIntegrationTest
         const decimal newRentPrice = 100;
         var newCategoryId = category.Id;
         
-        var dto = new DeviceUpdateDto(newName, newRentPrice, newCategoryId);
-
         const int notExistingId = 999;
+        var command = new UpdateDeviceCommand(notExistingId, newName, newRentPrice, newCategoryId);
+
         await Assert.ThrowsAsync<DeviceNotFoundException>(() =>
-            _handler.Handle(notExistingId, dto, CancellationToken.None));
+            _commandHandler.Handle(command, CancellationToken.None));
     }
     
     [Fact]
@@ -84,10 +84,10 @@ public class UpdateDeviceHandlerTests : BaseIntegrationTest
         var newCategoryId = category.Id;
         
         var device = await CreateDeviceAsync(status:DeviceStatus.Rented);
-        var dto = new DeviceUpdateDto(newName, newRentPrice, newCategoryId);
-
+        var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, newCategoryId);
+        
         await Assert.ThrowsAsync<DeviceIsBookedException>(() =>
-            _handler.Handle(device.Id, dto, CancellationToken.None));
+            _commandHandler.Handle(command, CancellationToken.None));
     }
     
     [Fact]
@@ -100,14 +100,14 @@ public class UpdateDeviceHandlerTests : BaseIntegrationTest
         var newCategoryId = category.Id;
         
         var device = await CreateDeviceAsync();
-        var dto = new DeviceUpdateDto(newName, newRentPrice, newCategoryId);
+        var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, newCategoryId);
 
         const string cacheKey = "key";
         await _cache.SetAsync(cacheKey, "test", tags: [CacheTags.Devices]);
         var cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeTrue();
         
-        await _handler.Handle(device.Id, dto, CancellationToken.None);
+        await _commandHandler.Handle(command, CancellationToken.None);
         
         cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeFalse();

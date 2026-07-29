@@ -5,7 +5,8 @@ using RentMat.API.Common.Security;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Application.Handlers.Booking;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Booking;
+using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
 

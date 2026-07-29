@@ -1,29 +1,31 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Application.Exceptions.Devices;
+using RentMat.Application.Queries.Devices;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Devices;
 
-public class GetDeviceByIdHandler
+public class GetDeviceByIdQueryHandler : IRequestHandler<GetDeviceByIdQuery, DeviceResponseDto>
 {
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
-    private readonly ILogger<GetDeviceByIdHandler> _logger;
+    private readonly ILogger<GetDeviceByIdQueryHandler> _logger;
 
-    public GetDeviceByIdHandler(AppDbContext db, IFusionCache cache, ILogger<GetDeviceByIdHandler> logger)
+    public GetDeviceByIdQueryHandler(AppDbContext db, IFusionCache cache, ILogger<GetDeviceByIdQueryHandler> logger)
     {
         _db = db;
         _cache = cache;
         _logger = logger;
     }
 
-    public async Task<DeviceResponseDto> Handle(int deviceId, CancellationToken cancellationToken)
+    public async Task<DeviceResponseDto> Handle(GetDeviceByIdQuery query, CancellationToken cancellationToken)
     {
-        var cacheKey = $"devices:id:{deviceId}";
+        var cacheKey = $"devices:id:{query.Id}";
 
         return await _cache.GetOrSetAsync<DeviceResponseDto>(
             cacheKey,
@@ -33,7 +35,7 @@ public class GetDeviceByIdHandler
 
                 var device = await _db.Devices
                     .AsNoTracking()
-                    .Where(d => d.Id == deviceId)
+                    .Where(d => d.Id == query.Id)
                     .Select(d => new DeviceResponseDto(
                         d.Id,
                         d.Name,
@@ -43,7 +45,7 @@ public class GetDeviceByIdHandler
                     ))
                     .SingleOrDefaultAsync(ct);
 
-                return device ?? throw new DeviceNotFoundException(deviceId);
+                return device ?? throw new DeviceNotFoundException(query.Id);
             },
             tags: [CacheTags.Devices],
             token: cancellationToken

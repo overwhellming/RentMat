@@ -5,7 +5,8 @@ using RentMat.Application.Common;
 using RentMat.Application.Handlers.Booking;
 using RentMat.Application.Handlers.Devices;
 using RentMat.Application.IntegrationTests.Infrastructure;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Booking;
+using RentMat.Application.Queries.Users;
 using RentMat.Core.Enums;
 using ZiggyCreatures.Caching.Fusion;
 

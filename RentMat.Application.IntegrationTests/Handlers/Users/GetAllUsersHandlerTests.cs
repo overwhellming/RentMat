@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.Handlers.Users;
 using RentMat.Application.IntegrationTests.Infrastructure;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Users;
 using RentMat.Core.Enums;
 using Serilog;
 using ZiggyCreatures.Caching.Fusion;

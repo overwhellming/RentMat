@@ -1,4 +1,6 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Commands.Devices;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Application.Exceptions.Devices;
@@ -8,33 +10,33 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Devices;
 
-public class CreateDeviceHandler
+public class CreateDeviceCommandHandler : IRequestHandler<CreateDeviceCommand, DeviceResponseDto>
 {
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
 
-    public CreateDeviceHandler(AppDbContext db, IFusionCache cache)
+    public CreateDeviceCommandHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
         _cache = cache;
     }
 
-    public async Task<DeviceResponseDto> Handle(DeviceCreateDto dto, CancellationToken cancellationToken)
+    public async Task<DeviceResponseDto> Handle(CreateDeviceCommand request, CancellationToken cancellationToken)
     {
         var categoryName = await _db.DeviceCategories
             .AsNoTracking()
-            .Where(c => c.Id == dto.CategoryId)
+            .Where(c => c.Id == request.CategoryId)
             .Select(c => c.Name)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (categoryName == null)
-            throw new DeviceCategoryNotFoundException(dto.CategoryId);
+            throw new DeviceCategoryNotFoundException(request.CategoryId);
 
         var device = new Device
         {
-            Name = dto.Name,
-            HourRentPrice = dto.HourRentPrice,
-            CategoryId = dto.CategoryId
+            Name = request.Name,
+            HourRentPrice = request.HourRentPrice,
+            CategoryId = request.CategoryId
         };
 
         _db.Devices.Add(device);

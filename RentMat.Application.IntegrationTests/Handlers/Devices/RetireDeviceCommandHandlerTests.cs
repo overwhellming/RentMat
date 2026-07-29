@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using RentMat.Application.Commands.Devices;
 using RentMat.Application.Common;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Application.Handlers.Devices;
@@ -10,16 +11,16 @@ using ZiggyCreatures.Caching.Fusion;
 namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 
 [Collection("Integration Tests Collection")]
-public class RetireDeviceHandlerTests : BaseIntegrationTest
+public class RetireDeviceCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly RetireDeviceHandler _handler;
+    private readonly RetireDeviceCommandHandler _commandHandler;
     private readonly IFusionCache _cache;
     
-    public RetireDeviceHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
+    public RetireDeviceCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
         _cache = scope.ServiceProvider.GetRequiredService<IFusionCache>();
-        _handler = new RetireDeviceHandler(DbContext, _cache);
+        _commandHandler = new RetireDeviceCommandHandler(DbContext, _cache);
     }
 
     [Fact]
@@ -28,7 +29,7 @@ public class RetireDeviceHandlerTests : BaseIntegrationTest
         var device = await CreateDeviceAsync(status: DeviceStatus.Available);
         device.Status.Should().NotBe(DeviceStatus.Retired);
         
-        await _handler.Handle(device.Id, CancellationToken.None);
+        await _commandHandler.Handle(new RetireDeviceCommand(device.Id), CancellationToken.None);
         
         var deviceInDb = await DbContext.Devices.FindAsync(device.Id);
         
@@ -39,14 +40,14 @@ public class RetireDeviceHandlerTests : BaseIntegrationTest
     [Fact]
     public async Task Should_Throw_DeviceNotFoundException_When_DeviceDoesNotExist()
     {
-        await Assert.ThrowsAsync<DeviceNotFoundException>(() => _handler.Handle(1, CancellationToken.None));
+        await Assert.ThrowsAsync<DeviceNotFoundException>(() => _commandHandler.Handle(new RetireDeviceCommand(1), CancellationToken.None));
     }
 
     [Fact]
     public async Task Should_Throw_DeviceIsBookedException_When_DeviceIsBooked()
     {
         var device = await CreateDeviceAsync(status: DeviceStatus.Rented);
-        await Assert.ThrowsAsync<DeviceIsBookedException>(() => _handler.Handle(device.Id, CancellationToken.None));
+        await Assert.ThrowsAsync<DeviceIsBookedException>(() => _commandHandler.Handle(new RetireDeviceCommand(device.Id), CancellationToken.None));
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public class RetireDeviceHandlerTests : BaseIntegrationTest
         var cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeTrue();
         
-        await _handler.Handle(device.Id, CancellationToken.None);
+        await _commandHandler.Handle(new RetireDeviceCommand(device.Id), CancellationToken.None);
         
         cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeFalse();

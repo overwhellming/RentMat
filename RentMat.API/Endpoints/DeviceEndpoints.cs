@@ -1,11 +1,14 @@
+using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RentMat.API.Common.Security;
+using RentMat.Application.Commands.Devices;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Application.Handlers.Devices;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Devices;
+using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
 
@@ -56,45 +59,48 @@ internal static class DeviceEndpoints
 
     private static async Task<Ok<PagedResponse<DeviceResponseDto>>> GetAll(
         [AsParameters] GetAllDevicesQuery query, 
-        [FromServices]  GetAllDevicesHandler handler,
+        [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(query, cancellationToken));
+        var result = await sender.Send(query, cancellationToken);
+        return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<DeviceResponseDto>> GetById(
         int id, 
-        [FromServices]  GetDeviceByIdHandler handler,
+        [FromServices]  GetDeviceByIdQueryHandler queryHandler,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(id, cancellationToken));
+        return TypedResults.Ok(await queryHandler.Handle(new GetDeviceByIdQuery(id), cancellationToken));
     }
     
     private static async Task<CreatedAtRoute<DeviceResponseDto>> Create(
         DeviceCreateDto dto, 
-        [FromServices] CreateDeviceHandler handler,
+        [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        var device = await handler.Handle(dto, cancellationToken);
+        var command = new CreateDeviceCommand(dto.Name, dto.HourRentPrice, dto.CategoryId);
+        var device = await sender.Send(command, cancellationToken);
         return TypedResults.CreatedAtRoute(device, routeName:"GetDeviceById", routeValues: new {id = device.Id});
     }
 
     private static async Task<NoContent> Update(
         int id, 
         DeviceUpdateDto dto, 
-        [FromServices]  UpdateDeviceHandler handler,
+        [FromServices]  ISender sender,
         CancellationToken cancellationToken)
     {
-        await handler.Handle(id, dto, cancellationToken);
+        var command = new UpdateDeviceCommand(id, dto.Name, dto.HourRentPrice, dto.CategoryId);
+        await sender.Send(command, cancellationToken);
         return TypedResults.NoContent();
     }
 
     private static async Task<NoContent> Retire(
         int id, 
-        [FromServices] RetireDeviceHandler handler, 
+        [FromServices] RetireDeviceCommandHandler commandHandler, 
         CancellationToken cancellationToken)
     {
-        await handler.Handle(id, cancellationToken);
+        await commandHandler.Handle(new RetireDeviceCommand(id), cancellationToken);
         return TypedResults.NoContent();
     }
 }

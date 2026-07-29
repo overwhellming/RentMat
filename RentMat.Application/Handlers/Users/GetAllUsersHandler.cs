@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.User;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Users;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 

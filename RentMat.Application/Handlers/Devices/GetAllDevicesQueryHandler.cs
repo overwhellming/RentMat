@@ -1,15 +1,17 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Devices;
+using RentMat.Application.Queries.Users;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Devices;
 
-public class GetAllDevicesHandler
+public class GetAllDevicesQueryHandler : IRequestHandler<GetAllDevicesQuery, PagedResponse<DeviceResponseDto>>
 {
     public const int DefaultPageSize = 10;
     public const int MaxPageSize = 50;
@@ -17,9 +19,9 @@ public class GetAllDevicesHandler
     private readonly IFusionCache _cache;
 
     private readonly AppDbContext _db;
-    private readonly ILogger<GetAllDevicesHandler> _logger;
+    private readonly ILogger<GetAllDevicesQueryHandler> _logger;
 
-    public GetAllDevicesHandler(AppDbContext db, IFusionCache cache, ILogger<GetAllDevicesHandler> logger)
+    public GetAllDevicesQueryHandler(AppDbContext db, IFusionCache cache, ILogger<GetAllDevicesQueryHandler> logger)
     {
         _cache = cache;
         _db = db;
@@ -30,15 +32,11 @@ public class GetAllDevicesHandler
         GetAllDevicesQuery query,
         CancellationToken cancellationToken)
     {
-        var page = query.Page < 1 ? 1 : query.Page;
-        var pageSize = query.PageSize < 1
-            ? DefaultPageSize
-            : Math.Min(query.PageSize, MaxPageSize);
         var search = query.Search?.Trim().ToLowerInvariant();
         var status = query.Status;
 
         var cacheKey =
-            $"devices:page:{page}:page-size:{pageSize}:search:{search ?? string.Empty}:status:{status?.ToString() ?? "all"}";
+            $"devices:page:{query.Page}:page-size:{query.PageSize}:search:{search ?? string.Empty}:status:{status?.ToString() ?? "all"}";
 
         return await _cache.GetOrSetAsync<PagedResponse<DeviceResponseDto>>(
             cacheKey,
@@ -57,12 +55,12 @@ public class GetAllDevicesHandler
                     : devicesQuery.Where(d => d.Status != DeviceStatus.Retired);
 
                 var totalItems = await devicesQuery.CountAsync(ct);
-                var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+                var totalPages = (int)Math.Ceiling((double)totalItems / query.PageSize);
 
                 var devices = await devicesQuery
                     .OrderBy(d => d.Id)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
+                    .Skip((query.Page - 1) * query.PageSize)
+                    .Take(query.PageSize)
                     .Select(d => new DeviceResponseDto(
                         d.Id,
                         d.Name,
@@ -75,8 +73,8 @@ public class GetAllDevicesHandler
                 return new PagedResponse<DeviceResponseDto>
                 {
                     Items = devices,
-                    Page = page,
-                    PageSize = pageSize,
+                    Page = query.Page,
+                    PageSize = query.PageSize,
                     TotalItems = totalItems,
                     TotalPages = totalPages
                 };

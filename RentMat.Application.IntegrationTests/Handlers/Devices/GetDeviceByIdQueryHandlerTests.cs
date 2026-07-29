@@ -5,22 +5,23 @@ using RentMat.Application.Common;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Application.Handlers.Devices;
 using RentMat.Application.IntegrationTests.Infrastructure;
+using RentMat.Application.Queries.Devices;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 
 [Collection("Integration Tests Collection")]
-public class GetDeviceByIdHandlerTests : BaseIntegrationTest
+public class GetDeviceByIdQueryHandlerTests : BaseIntegrationTest
 {
-    private readonly GetDeviceByIdHandler _handler;
+    private readonly GetDeviceByIdQueryHandler _queryHandler;
     private readonly IFusionCache _cache;
     
-    public GetDeviceByIdHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
+    public GetDeviceByIdQueryHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
         _cache = scope.ServiceProvider.GetRequiredService<IFusionCache>();
-        _handler = new GetDeviceByIdHandler(DbContext, _cache,
-            scope.ServiceProvider.GetRequiredService<ILogger<GetDeviceByIdHandler>>());
+        _queryHandler = new GetDeviceByIdQueryHandler(DbContext, _cache,
+            scope.ServiceProvider.GetRequiredService<ILogger<GetDeviceByIdQueryHandler>>());
     }
 
     [Fact]
@@ -28,7 +29,7 @@ public class GetDeviceByIdHandlerTests : BaseIntegrationTest
     {
         const string name = "Laptop";
         var device = await CreateDeviceAsync(name: name);
-        var response = await _handler.Handle(device.Id, CancellationToken.None);
+        var response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
 
         response.Should().NotBeNull();
         response.Id.Should().Be(device.Id);
@@ -39,7 +40,7 @@ public class GetDeviceByIdHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_DeviceNotFoundException_When_DeviceDoesNotExist()
     {
         const int notExistingId = 999;
-        await Assert.ThrowsAsync<DeviceNotFoundException>(() => _handler.Handle(notExistingId, CancellationToken.None));
+        await Assert.ThrowsAsync<DeviceNotFoundException>(() => _queryHandler.Handle(new GetDeviceByIdQuery(notExistingId), CancellationToken.None));
     }
 
     [Fact]
@@ -48,14 +49,14 @@ public class GetDeviceByIdHandlerTests : BaseIntegrationTest
         const string initialName = "Laptop";
         var device = await CreateDeviceAsync(name: initialName);
         
-        var response = await _handler.Handle(device.Id, CancellationToken.None);
+        var response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(initialName);
 
         var userInDb = await DbContext.Devices.FindAsync(device.Id);
         userInDb!.Name = initialName + "a";
         await DbContext.SaveChangesAsync();
         
-        response = await _handler.Handle(device.Id, CancellationToken.None);
+        response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(initialName);
     }
     
@@ -63,19 +64,19 @@ public class GetDeviceByIdHandlerTests : BaseIntegrationTest
     public async Task Should_Return_UpdatedData_After_CacheInvalidation()
     {
         const string initialName = "Laptop";
-        var user = await CreateDeviceAsync(name: initialName);
+        var device = await CreateDeviceAsync(name: initialName);
         
-        var response = await _handler.Handle(user.Id, CancellationToken.None);
+        var response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(initialName);
 
-        var userInDb = await DbContext.Devices.FindAsync(user.Id);
+        var deviceInDb = await DbContext.Devices.FindAsync(device.Id);
 
         const string newName = initialName + "a";
-        userInDb!.Name = newName;
+        deviceInDb!.Name = newName;
         await DbContext.SaveChangesAsync();
         await _cache.RemoveByTagAsync(CacheTags.Devices);
         
-        response = await _handler.Handle(user.Id, CancellationToken.None);
+        response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(newName);
     }
 }

@@ -5,7 +5,7 @@ using RentMat.API.Common.Security;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.User;
 using RentMat.Application.Handlers.Users;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
 

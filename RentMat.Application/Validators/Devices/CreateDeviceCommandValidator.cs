@@ -1,22 +1,23 @@
 using FluentValidation;
+using RentMat.Application.Commands.Devices;
 using RentMat.Application.DTOs.Device;
 using RentMat.Core.Constants;
 
 namespace RentMat.Application.Validators.Devices;
 
-public class DeviceUpdateDtoValidator : AbstractValidator<DeviceUpdateDto>
+public class CreateDeviceCommandValidator : AbstractValidator<CreateDeviceCommand>
 {
-    public DeviceUpdateDtoValidator()
+    public CreateDeviceCommandValidator()
     {
-        RuleFor(d => d.Name)
+        RuleFor(x => x.Name)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .MaximumLength(ValidationConstants.DeviceNameMaxLength);
         
-        RuleFor(d => d.HourRentPrice)
+        RuleFor(x => x.HourRentPrice)
             .GreaterThan(0);
         
-        RuleFor(d => d.CategoryId)
+        RuleFor(x => x.CategoryId)
             .GreaterThan(0);
     }
 }
