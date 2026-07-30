@@ -22,8 +22,8 @@ public static class HandlerRegistrar
         services.AddScoped<CreateBookingHandler>();
         services.AddScoped<CompleteBookingHandler>();
 
-        services.AddScoped<RegisterHandler>();
-        services.AddScoped<LoginHandler>();
+        services.AddScoped<RegisterCommandHandler>();
+        services.AddScoped<LoginCommandHandler>();
 
         services.AddScoped<GetAllUsersHandler>();
         services.AddScoped<GetUserByIdHandler>();

@@ -9,7 +9,7 @@ public static class ValidatorRegistrar
     public static IServiceCollection RegisterValidators(
         this IServiceCollection services)
     {
-        services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<RegisterCommandValidator>();
 
         return services;
     }

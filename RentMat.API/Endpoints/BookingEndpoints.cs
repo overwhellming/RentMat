@@ -21,7 +21,7 @@ internal static class BookingEndpoints
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("GetBookings")
             .WithSummary("Returns all bookings")
-            .ProducesProblem(400)
+            .ProducesValidationProblem()
             .ProducesProblem(401)
             .ProducesProblem(403);
         
@@ -44,7 +44,6 @@ internal static class BookingEndpoints
             .WithName("CreateBooking")
             .WithSummary("Creates a booking")
             .ProducesValidationProblem()
-            .ProducesProblem(400)
             .ProducesProblem(401)
             .ProducesProblem(404)
             .ProducesProblem(409);

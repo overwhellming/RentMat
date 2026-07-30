@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using RentMat.Application.Commands.Authentication;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Handlers.Authentication;
@@ -11,24 +12,24 @@ using RentMat.Application.Services.Interfaces;
 namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 
 [Collection("Integration Tests Collection")]
-public class LoginHandlerTests : BaseIntegrationTest
+public class LoginCommandHandlerTests : BaseIntegrationTest
 {
     private const string CorrectPassword = "Password123";
-    private readonly LoginHandler _handler;
+    private readonly LoginCommandHandler _commandHandler;
 
-    public LoginHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
+    public LoginCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
-        _handler = new LoginHandler(DbContext, scope.ServiceProvider.GetRequiredService<IJwtTokenService>());
+        _commandHandler = new LoginCommandHandler(DbContext, scope.ServiceProvider.GetRequiredService<IJwtTokenService>());
     }
 
     [Fact]
     public async Task Should_Create_In_Database_And_Return_JwtToken_When_Credentials_Are_Valid()
     {
         var user = await CreateUserAsync(password: CorrectPassword);
-        var dto = new LoginDto(user.Login, CorrectPassword);
+        var command = new LoginCommand(user.Login, CorrectPassword);
 
-        var token = await _handler.Handle(dto, CancellationToken.None);
+        var token = await _commandHandler.Handle(command, CancellationToken.None);
         token.AccessToken.Should().NotBeNullOrEmpty();
         token.RefreshToken.Should().NotBeNullOrEmpty();
         
@@ -44,10 +45,10 @@ public class LoginHandlerTests : BaseIntegrationTest
     public async Task Should_Create_New_RefreshToken_On_Every_Login()
     {
         var user = await CreateUserAsync(password: CorrectPassword);
-        var dto = new LoginDto(user.Login, CorrectPassword);
+        var command = new LoginCommand(user.Login, CorrectPassword);
 
-        var firstToken = await _handler.Handle(dto, CancellationToken.None);
-        var secondToken = await _handler.Handle(dto, CancellationToken.None);
+        var firstToken = await _commandHandler.Handle(command, CancellationToken.None);
+        var secondToken = await _commandHandler.Handle(command, CancellationToken.None);
 
         firstToken.Should().NotBe(secondToken);
         var tokensInDb = await DbContext.RefreshTokenEntries.Where(e => e.UserId == user.Id)
@@ -58,17 +59,17 @@ public class LoginHandlerTests : BaseIntegrationTest
     [Fact]
     public async Task Should_Throw_InvalidCredentialsException_When_UserDoesNotExist()
     {
-        var dto = new LoginDto("john", CorrectPassword);
+        var command = new LoginCommand("john", CorrectPassword);
         await Assert.ThrowsAsync<InvalidCredentialsException>(() =>
-            _handler.Handle(dto, CancellationToken.None));
+            _commandHandler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
     public async Task Should_Throw_InvalidCredentialsException_When_Password_Is_Invalid()
     {
         await CreateUserAsync(password: CorrectPassword);
-        var dto = new LoginDto("john", "incorrectpassword");
+        var command = new LoginCommand("john", "incorrectpassword");
         await Assert.ThrowsAsync<InvalidCredentialsException>(() =>
-            _handler.Handle(dto, CancellationToken.None));
+            _commandHandler.Handle(command, CancellationToken.None));
     }
 }

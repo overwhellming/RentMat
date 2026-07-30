@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Commands.Authentication;
 using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Handlers.Authentication;
 using RentMat.Application.IntegrationTests.Infrastructure;
@@ -7,13 +8,13 @@ using RentMat.Application.IntegrationTests.Infrastructure;
 namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 
 [Collection("Integration Tests Collection")]
-public class RevokeRefreshTokenHandlerTests : BaseIntegrationTest
+public class RevokeRefreshTokenCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly RevokeRefreshTokenHandler _handler;
+    private readonly RevokeRefreshTokenCommandHandler _commandHandler;
     
-    public RevokeRefreshTokenHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
+    public RevokeRefreshTokenCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
-        _handler = new RevokeRefreshTokenHandler(DbContext);
+        _commandHandler = new RevokeRefreshTokenCommandHandler(DbContext);
     }
 
     [Fact]
@@ -28,7 +29,7 @@ public class RevokeRefreshTokenHandlerTests : BaseIntegrationTest
         
         DbContext.ChangeTracker.Clear();
         
-        await _handler.Handle(initialTokenEntry.UserId, CancellationToken.None);
+        await _commandHandler.Handle(new RevokeRefreshTokenCommand(initialTokenEntry.UserId), CancellationToken.None);
         var revokedTokenEntry =
             await DbContext.RefreshTokenEntries.FirstOrDefaultAsync(e => e.Token == tokenResponse.RefreshToken);
         revokedTokenEntry.Should().NotBeNull();
@@ -40,7 +41,7 @@ public class RevokeRefreshTokenHandlerTests : BaseIntegrationTest
         const int notExistingUserId = 999;
     
         await Assert.ThrowsAsync<ActiveRefreshTokenNotFoundException>(() =>
-            _handler.Handle(notExistingUserId, CancellationToken.None));
+            _commandHandler.Handle(new RevokeRefreshTokenCommand(notExistingUserId), CancellationToken.None));
     }
 
     [Fact]
@@ -49,6 +50,6 @@ public class RevokeRefreshTokenHandlerTests : BaseIntegrationTest
         var user = await CreateUserAsync();
     
         await Assert.ThrowsAsync<ActiveRefreshTokenNotFoundException>(() =>
-            _handler.Handle(user.Id, CancellationToken.None));
+            _commandHandler.Handle(new RevokeRefreshTokenCommand(user.Id), CancellationToken.None));
     }
 }

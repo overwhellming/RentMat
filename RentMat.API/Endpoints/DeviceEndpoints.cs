@@ -22,19 +22,18 @@ internal static class DeviceEndpoints
         group.MapGet("/", GetAll)
             .WithName("GetDevices")
             .WithSummary("Returns all devices")
-            .ProducesProblem(400);
+            .ProducesValidationProblem();
 
         group.MapGet("/{id:int}", GetById)
             .WithName("GetDeviceById")
             .WithSummary("Returns a device by id")
-            .ProducesProblem(400);
+            .ProducesValidationProblem();
         
         group.MapPost("/create", Create)
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("CreateDevice")
             .WithSummary("Creates a device")
             .ProducesValidationProblem()
-            .ProducesProblem(400)
             .ProducesProblem(404);
         
         group.MapPut("/{id:int}", Update)
@@ -42,7 +41,6 @@ internal static class DeviceEndpoints
             .WithName("UpdateDevice")
             .WithSummary("Updates a device")
             .ProducesValidationProblem()
-            .ProducesProblem(400)
             .ProducesProblem(401)
             .ProducesProblem(403)
             .ProducesProblem(404);
@@ -51,7 +49,7 @@ internal static class DeviceEndpoints
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("RetireDevice")
             .WithSummary("Changes a device status to retired")
-            .ProducesProblem(400)
+            .ProducesValidationProblem()
             .ProducesProblem(401)
             .ProducesProblem(403)
             .ProducesProblem(404);

@@ -12,7 +12,7 @@ public class GetDeviceByIdQueryValidatorTests
     private readonly GetDeviceByIdQueryValidator _validator = new();
 
     [Fact]
-    public void Should_BeValid_When_Dto_Is_Correct()
+    public void Should_BeValid_When_Query_Is_Correct()
     {
         var query = new GetDeviceByIdQuery
         (

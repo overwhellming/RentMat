@@ -11,7 +11,7 @@ public class CreateDeviceCommandValidatorTests
     private readonly CreateDeviceCommandValidator _validator = new();
 
     [Fact]
-    public void Should_BeValid_When_Dto_Is_Correct()
+    public void Should_BeValid_When_Command_Is_Correct()
     {
         var command = new CreateDeviceCommand
         (

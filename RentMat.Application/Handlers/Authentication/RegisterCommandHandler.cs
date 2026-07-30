@@ -1,4 +1,6 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using RentMat.Application.Commands.Authentication;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Application.Services.Interfaces;
@@ -8,25 +10,23 @@ using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.Handlers.Authentication;
 
-public class RegisterHandler
+public class RegisterCommandHandler : IRequestHandler<RegisterCommand, TokenResponseDto>
 {
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
-    private readonly IJwtTokenService _jwtTokenService;
-    private readonly LoginHandler _loginHandler;
+    private readonly IMediator _mediator;
     
-    public RegisterHandler(AppDbContext db, IFusionCache cache, IJwtTokenService jwtTokenService, LoginHandler loginHandler)
+    public RegisterCommandHandler(AppDbContext db, IFusionCache cache, IMediator mediator)
     {
         _db = db;
         _cache = cache;
-        _jwtTokenService = jwtTokenService;
-        _loginHandler = loginHandler;
+        _mediator = mediator;
     }
 
-    public async Task<TokenResponseDto> Handle(RegisterDto dto, CancellationToken cancellationToken = default)
+    public async Task<TokenResponseDto> Handle(RegisterCommand command, CancellationToken cancellationToken = default)
     {
-        var formattedLogin = dto.Login.Trim();
-        var formattedEmail = dto.Email.Trim().ToLowerInvariant();
+        var formattedLogin = command.Login.Trim();
+        var formattedEmail = command.Email.Trim().ToLowerInvariant();
         
         var userExists = await _db.Users.AnyAsync(u => u.Login == formattedLogin 
                                                        || u.Email == formattedEmail,
@@ -35,12 +35,12 @@ public class RegisterHandler
         if (userExists)
             throw new UserAlreadyExistsException();
 
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password, 12);
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(command.Password, 12);
 
         var user = new User
         {
-            Login = dto.Login.Trim(),
-            Email = dto.Email.Trim().ToLowerInvariant(),
+            Login = command.Login.Trim(),
+            Email = command.Email.Trim().ToLowerInvariant(),
             HashedPassword = hashedPassword,
             Balance = 0,
             CreatedAt = DateTimeOffset.UtcNow
@@ -50,7 +50,7 @@ public class RegisterHandler
         await _db.SaveChangesAsync(cancellationToken);
         await _cache.RemoveByTagAsync("users");
 
-        var tokenResponse = await _loginHandler.Handle(new LoginDto(dto.Login, dto.Password), cancellationToken);
+        var tokenResponse = await _mediator.Send(new LoginCommand(command.Login, command.Password), cancellationToken);
         
         return tokenResponse;
     }

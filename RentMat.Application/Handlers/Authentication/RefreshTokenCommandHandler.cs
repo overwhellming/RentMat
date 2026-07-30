@@ -1,10 +1,9 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using RentMat.Application.Commands.Authentication;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Exceptions.Authentication;
-using RentMat.Application.Exceptions.Users;
 using RentMat.Application.Services;
 using RentMat.Application.Services.Interfaces;
 using RentMat.Core.Models;
@@ -12,20 +11,20 @@ using RentMat.Infrastructure.Data;
 
 namespace RentMat.Application.Handlers.Authentication;
 
-public class RefreshTokenHandler
+public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, TokenResponseDto>
 {
     private readonly AppDbContext _db;
     private readonly IJwtTokenService _tokenService;
     
-    public RefreshTokenHandler(AppDbContext db, IJwtTokenService tokenService)
+    public RefreshTokenCommandHandler(AppDbContext db, IJwtTokenService tokenService)
     {
         _db = db;
         _tokenService = tokenService;
     }
 
-    public async Task<TokenResponseDto> Handle(RefreshTokenDto dto, CancellationToken cancellationToken)
+    public async Task<TokenResponseDto> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
     {
-        var principal = _tokenService.GetPrincipalFromExpiredToken(dto.AccessToken);
+        var principal = _tokenService.GetPrincipalFromExpiredToken(command.AccessToken);
 
         if (principal is null)
             throw new InvalidAccessTokenException();
@@ -36,7 +35,7 @@ public class RefreshTokenHandler
 
         var tokenEntry = await _db.RefreshTokenEntries
             .Include(e => e.User)
-            .FirstOrDefaultAsync(e => e.Token == dto.RefreshToken && e.UserId.ToString() == userId, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Token == command.RefreshToken && e.UserId.ToString() == userId, cancellationToken);
 
         if (tokenEntry is null || tokenEntry.IsRevoked || tokenEntry.ExpiresAt < DateTimeOffset.UtcNow)
             throw new InvalidRefreshTokenException();

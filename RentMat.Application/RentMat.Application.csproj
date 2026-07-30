@@ -20,10 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Commands\Authentication\" />
       <Folder Include="Commands\Booking\" />
       <Folder Include="Commands\Users\" />
-      <Folder Include="Queries\Authentication\" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using RentMat.Application.Commands.Authentication;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Handlers.Authentication;
@@ -16,7 +17,7 @@ public class BaseIntegrationTest : IAsyncLifetime
     private readonly IntegrationTestWebAppFactory _factory;
     private readonly IServiceScope _scope;
     private readonly IFusionCache _cache;
-    private readonly RegisterHandler _registerHandler;
+    private readonly RegisterCommandHandler _registerCommandHandler;
     protected readonly AppDbContext DbContext;
 
     protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
@@ -25,7 +26,7 @@ public class BaseIntegrationTest : IAsyncLifetime
         _scope = factory.Services.CreateScope();
         DbContext = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
         _cache = _scope.ServiceProvider.GetRequiredService<IFusionCache>();
-        _registerHandler = _scope.ServiceProvider.GetRequiredService<RegisterHandler>();
+        _registerCommandHandler = _scope.ServiceProvider.GetRequiredService<RegisterCommandHandler>();
     }
 
     protected async Task<TokenResponseDto> RegisterUserAsync(string? login = null, string? email = null, string? password = null)
@@ -34,8 +35,8 @@ public class BaseIntegrationTest : IAsyncLifetime
         const string defaultLogin = "LoginJohn";
         const string defaultEmail = "john@test.com";
 
-        var dto = new RegisterDto(login ?? defaultLogin, email ?? defaultEmail, password ?? defaultPassword);
-        return await _registerHandler.Handle(dto, CancellationToken.None);
+        var command = new RegisterCommand(login ?? defaultLogin, email ?? defaultEmail, password ?? defaultPassword);
+        return await _registerCommandHandler.Handle(command, CancellationToken.None);
     }
     
     protected async Task<User> CreateUserAsync(string? login = null, string? email = null, UserRole role = UserRole.User, 

@@ -20,7 +20,7 @@ internal static class UserEndpoints
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("GetUsers")
             .WithSummary("Returns all users")
-            .ProducesProblem(400)
+            .ProducesValidationProblem()
             .ProducesProblem(401)
             .ProducesProblem(403);
 
@@ -49,7 +49,6 @@ internal static class UserEndpoints
             .WithName("Deposit")
             .WithSummary("Deposit to the current user's balance")
             .ProducesValidationProblem()
-            .ProducesProblem(400)
             .ProducesProblem(401);
         
         group.MapGet("/me/deposits", GetMyDeposits)
