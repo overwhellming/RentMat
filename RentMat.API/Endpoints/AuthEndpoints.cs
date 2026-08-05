@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.API.Common.Security;
@@ -44,33 +45,42 @@ internal static class AuthEndpoints
             .ProducesProblem(401);
     }
 
-    private static async Task<Ok<TokenResponseDto>> Login(LoginDto dto, [FromServices] LoginCommandHandler commandHandler, CancellationToken cancellationToken)
+    private static async Task<Ok<TokenResponseDto>> Login(
+        [FromBody] LoginDto dto, 
+        [FromServices] IMediator mediator, 
+        CancellationToken cancellationToken)
     {
         var command = new LoginCommand(dto.Login, dto.Password);
-        var tokenResponse = await commandHandler.Handle(command, cancellationToken);
+        var tokenResponse = await mediator.Send(command, cancellationToken);
         return TypedResults.Ok(tokenResponse);
     }
 
-    private static async Task<Ok<TokenResponseDto>> Register(RegisterDto dto,[FromServices]  RegisterCommandHandler commandHandler,
+    private static async Task<Ok<TokenResponseDto>> Register(
+        [FromBody] RegisterDto dto,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         var command = new RegisterCommand(dto.Login, dto.Email, dto.Password);
-        var tokenResponse = await commandHandler.Handle(command, cancellationToken);
+        var tokenResponse = await mediator.Send(command, cancellationToken);
         return TypedResults.Ok(tokenResponse);
     }
     
-    private static async Task<Ok> Revoke(ClaimsPrincipal user, [FromServices] RevokeRefreshTokenCommandHandler commandHandler, 
+    private static async Task<Ok> Revoke(
+        ClaimsPrincipal user, 
+        [FromServices] IMediator mediator, 
         CancellationToken cancellationToken)
     {
-        await commandHandler.Handle(new RevokeRefreshTokenCommand(user.GetUserId()), cancellationToken);
+        await mediator.Send(new RevokeRefreshTokenCommand(user.GetUserId()), cancellationToken);
         return TypedResults.Ok();
     }
     
-    private static async Task<Ok<TokenResponseDto>> Refresh(RefreshTokenDto dto, [FromServices] RefreshTokenCommandHandler commandHandler, 
+    private static async Task<Ok<TokenResponseDto>> Refresh(
+        [FromBody] RefreshTokenDto dto, 
+        [FromServices] IMediator mediator, 
         CancellationToken cancellationToken)
     {
         var command = new RefreshTokenCommand(dto.AccessToken, dto.RefreshToken);
-        var tokenResponse = await commandHandler.Handle(command, cancellationToken);
+        var tokenResponse = await mediator.Send(command, cancellationToken);
         return TypedResults.Ok(tokenResponse);
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using RentMat.Infrastructure.Data;
@@ -61,10 +62,18 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         await _container.StartAsync();
         _connectionString = _container.GetConnectionString();
 
-        using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await dbContext.Database.MigrateAsync();
-        
+        try
+        {
+            using var scope = Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"HOST STARTUP FAILED: {ex}");
+            throw;
+        }
+
         await InitializeRespawnerAsync();
     }
 
@@ -86,14 +95,9 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         await _respawner.ResetAsync(connection);
     }
 
-    public override async ValueTask DisposeAsync()
+    public new async Task DisposeAsync()
     {
         await _container.StopAsync();
         await base.DisposeAsync();
-    }
-
-    async Task IAsyncLifetime.DisposeAsync()
-    {
-        await DisposeAsync();
     }
 }

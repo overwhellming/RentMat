@@ -19,8 +19,8 @@ public class LoginCommandHandlerTests : BaseIntegrationTest
 
     public LoginCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
-        using var scope = factory.Services.CreateScope();
-        _commandHandler = new LoginCommandHandler(DbContext, scope.ServiceProvider.GetRequiredService<IJwtTokenService>());
+        var scope = factory.Services.CreateScope();
+        _commandHandler = scope.ServiceProvider.GetRequiredService<LoginCommandHandler>();
     }
 
     [Fact]

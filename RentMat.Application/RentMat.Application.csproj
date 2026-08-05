@@ -19,9 +19,4 @@
         <PackageReference Include="ZiggyCreatures.FusionCache" Version="2.5.0"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Commands\Booking\" />
-      <Folder Include="Commands\Users\" />
-    </ItemGroup>
-
 </Project>

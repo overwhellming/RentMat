@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using FluentAssertions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -16,13 +17,12 @@ namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 [Collection("Integration Tests Collection")]
 public class RefreshTokenCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly RefreshTokenCommandHandler _commandHandler;
+    private readonly IMediator _mediator;
 
     public RefreshTokenCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
-        using var scope = factory.Services.CreateScope();
-        _commandHandler =
-            new RefreshTokenCommandHandler(DbContext, scope.ServiceProvider.GetRequiredService<IJwtTokenService>());
+        var scope = factory.Services.CreateScope();
+        _mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
     }
 
     [Fact]
@@ -31,7 +31,9 @@ public class RefreshTokenCommandHandlerTests : BaseIntegrationTest
         var initialResponse = await RegisterUserAsync();
         var command = new RefreshTokenCommand(initialResponse.AccessToken, initialResponse.RefreshToken);
 
-        var refreshedResponse = await _commandHandler.Handle(command, CancellationToken.None);
+        DbContext.ChangeTracker.Clear();
+        
+        var refreshedResponse = await _mediator.Send(command, CancellationToken.None);
 
         refreshedResponse.Should().NotBeNull();
         refreshedResponse.AccessToken.Should().NotBe(initialResponse.AccessToken);
@@ -45,7 +47,8 @@ public class RefreshTokenCommandHandlerTests : BaseIntegrationTest
         newEntryInDb.CreatedAt.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
         newEntryInDb.ExpiresAt.Should().BeCloseTo(DateTimeOffset.UtcNow.AddDays(JwtTokenService.RefreshTokenDays),
             TimeSpan.FromSeconds(1));
-
+        
+        
         var oldEntryInDb =
             await DbContext.RefreshTokenEntries.FirstOrDefaultAsync(e => e.Token == initialResponse.RefreshToken);
         oldEntryInDb.Should().NotBeNull();

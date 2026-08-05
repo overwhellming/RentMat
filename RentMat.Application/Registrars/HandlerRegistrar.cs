@@ -16,19 +16,21 @@ public static class HandlerRegistrar
         services.AddScoped<UpdateDeviceCommandHandler>();
         services.AddScoped<RetireDeviceCommandHandler>();
 
-        services.AddScoped<GetAllBookingsHandler>();
-        services.AddScoped<GetBookingByIdHandler>();
-        services.AddScoped<GetUserBookingsHandler>();
-        services.AddScoped<CreateBookingHandler>();
-        services.AddScoped<CompleteBookingHandler>();
+        services.AddScoped<GetAllBookingsQueryHandler>();
+        services.AddScoped<GetBookingByIdQueryHandler>();
+        services.AddScoped<GetUserBookingsQueryHandler>();
+        services.AddScoped<CreateBookingCommandHandler>();
+        services.AddScoped<CompleteBookingCommandHandler>();
 
         services.AddScoped<RegisterCommandHandler>();
         services.AddScoped<LoginCommandHandler>();
+        services.AddScoped<RefreshTokenCommandHandler>();
+        services.AddScoped<RevokeRefreshTokenCommandHandler>();
 
-        services.AddScoped<GetAllUsersHandler>();
-        services.AddScoped<GetUserByIdHandler>();
-        services.AddScoped<GetUserBalanceHandler>();
-        services.AddScoped<DepositUserBalanceHandler>();
+        services.AddScoped<GetAllUsersQueryHandler>();
+        services.AddScoped<GetUserByIdQueryHandler>();
+        services.AddScoped<GetUserBalanceQueryHandler>();
+        services.AddScoped<DepositUserBalanceCommandHandler>();
         return services;
     }
 }

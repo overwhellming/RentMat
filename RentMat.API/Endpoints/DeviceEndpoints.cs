@@ -57,48 +57,48 @@ internal static class DeviceEndpoints
 
     private static async Task<Ok<PagedResponse<DeviceResponseDto>>> GetAll(
         [AsParameters] GetAllDevicesQuery query, 
-        [FromServices] ISender sender,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var result = await mediator.Send(query, cancellationToken);
         return TypedResults.Ok(result);
     }
 
     private static async Task<Ok<DeviceResponseDto>> GetById(
-        int id, 
-        [FromServices]  GetDeviceByIdQueryHandler queryHandler,
+        [AsParameters] int id, 
+        [FromServices]  IMediator mediator,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await queryHandler.Handle(new GetDeviceByIdQuery(id), cancellationToken));
+        return TypedResults.Ok(await mediator.Send(new GetDeviceByIdQuery(id), cancellationToken));
     }
     
     private static async Task<CreatedAtRoute<DeviceResponseDto>> Create(
-        DeviceCreateDto dto, 
-        [FromServices] ISender sender,
+        [FromBody] DeviceCreateDto dto, 
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         var command = new CreateDeviceCommand(dto.Name, dto.HourRentPrice, dto.CategoryId);
-        var device = await sender.Send(command, cancellationToken);
+        var device = await mediator.Send(command, cancellationToken);
         return TypedResults.CreatedAtRoute(device, routeName:"GetDeviceById", routeValues: new {id = device.Id});
     }
 
     private static async Task<NoContent> Update(
-        int id, 
-        DeviceUpdateDto dto, 
-        [FromServices]  ISender sender,
+        [AsParameters] int id, 
+        [FromBody] DeviceUpdateDto dto, 
+        [FromServices]  IMediator mediator,
         CancellationToken cancellationToken)
     {
         var command = new UpdateDeviceCommand(id, dto.Name, dto.HourRentPrice, dto.CategoryId);
-        await sender.Send(command, cancellationToken);
+        await mediator.Send(command, cancellationToken);
         return TypedResults.NoContent();
     }
 
     private static async Task<NoContent> Retire(
-        int id, 
-        [FromServices] RetireDeviceCommandHandler commandHandler, 
+        [AsParameters] int id, 
+        [FromServices] IMediator mediator, 
         CancellationToken cancellationToken)
     {
-        await commandHandler.Handle(new RetireDeviceCommand(id), cancellationToken);
+        await mediator.Send(new RetireDeviceCommand(id), cancellationToken);
         return TypedResults.NoContent();
     }
 }

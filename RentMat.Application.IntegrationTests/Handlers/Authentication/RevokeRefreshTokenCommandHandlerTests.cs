@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RentMat.Application.Commands.Authentication;
 using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Handlers.Authentication;
@@ -14,7 +15,8 @@ public class RevokeRefreshTokenCommandHandlerTests : BaseIntegrationTest
     
     public RevokeRefreshTokenCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
-        _commandHandler = new RevokeRefreshTokenCommandHandler(DbContext);
+        var scope = factory.Services.CreateScope();
+        _commandHandler = scope.ServiceProvider.GetRequiredService<RevokeRefreshTokenCommandHandler>();
     }
 
     [Fact]

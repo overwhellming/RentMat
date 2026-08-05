@@ -24,10 +24,7 @@ public class RegisterCommandHandlerTests : BaseIntegrationTest
     {
         var scope = factory.Services.CreateScope();
         _cache = scope.ServiceProvider.GetRequiredService<IFusionCache>();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        _commandHandler = new RegisterCommandHandler(DbContext,
-            _cache,
-            mediator);
+        _commandHandler = scope.ServiceProvider.GetRequiredService<RegisterCommandHandler>();
     }
 
     [Fact]

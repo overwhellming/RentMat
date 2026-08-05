@@ -18,5 +18,7 @@ public static class ValidationConstants
 
     public const int BookingStatusMaxLength = 50;
 
+    public const int BookingSearchMaxLength = DeviceSearchMaxLength;
+    
     public const decimal MaxDepositAmount = 2_000_000;
 }
