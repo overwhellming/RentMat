@@ -2,10 +2,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.API.Common.Security;
+using RentMat.Application.Commands.Users;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.User;
 using RentMat.Application.Handlers.Users;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
 
@@ -20,7 +21,7 @@ internal static class UserEndpoints
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("GetUsers")
             .WithSummary("Returns all users")
-            .ProducesProblem(400)
+            .ProducesValidationProblem()
             .ProducesProblem(401)
             .ProducesProblem(403);
 
@@ -49,7 +50,6 @@ internal static class UserEndpoints
             .WithName("Deposit")
             .WithSummary("Deposit to the current user's balance")
             .ProducesValidationProblem()
-            .ProducesProblem(400)
             .ProducesProblem(401);
         
         group.MapGet("/me/deposits", GetMyDeposits)
@@ -59,40 +59,52 @@ internal static class UserEndpoints
             .ProducesProblem(401);
     }
 
-    private static async Task<Ok<PagedResponse<UserResponseDto>>> GetAll([AsParameters] GetAllUsersQuery query,
-        [FromServices] GetAllUsersHandler handler,
+    private static async Task<Ok<PagedResponse<UserResponseDto>>> GetAll(
+        [AsParameters] GetAllUsersQuery query,
+        [FromServices] GetAllUsersQueryHandler queryHandler,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(query, cancellationToken));
+        return TypedResults.Ok(await queryHandler.Handle(query, cancellationToken));
     }
 
-    private static async Task<Ok<UserResponseDto>> GetById(int id, [FromServices] GetUserByIdHandler handler,
+    private static async Task<Ok<UserResponseDto>> GetById(
+        [AsParameters] int id, 
+        [FromServices] GetUserByIdQueryHandler queryHandler,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(id, cancellationToken));
+        return TypedResults.Ok(await queryHandler.Handle(new GetUserByIdQuery(id), cancellationToken));
     }
 
-    private static async Task<Ok<UserResponseDto>> GetMe(ClaimsPrincipal user,[FromServices]  GetUserByIdHandler handler,
+    private static async Task<Ok<UserResponseDto>> GetMe(
+        ClaimsPrincipal user,
+        [FromServices]  GetUserByIdQueryHandler queryHandler,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(user.GetUserId(), cancellationToken));
+        return TypedResults.Ok(await queryHandler.Handle(new GetUserByIdQuery(user.GetUserId()), cancellationToken));
     }
 
-    private static async Task<Ok<decimal>> GetMyBalance(ClaimsPrincipal user, [FromServices] GetUserBalanceHandler handler,
+    private static async Task<Ok<decimal>> GetMyBalance(
+        ClaimsPrincipal user, 
+        [FromServices] GetUserBalanceQueryHandler queryHandler,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(user.GetUserId(), cancellationToken));
+        return TypedResults.Ok(await queryHandler.Handle(new GetUserBalanceQuery(user.GetUserId()), cancellationToken));
     }
 
-    private static async Task<Ok<DepositCreatedResponseDto>> Deposit(DepositCreateDto dto, ClaimsPrincipal user,
-        [FromServices]   DepositUserBalanceHandler handler, CancellationToken cancellationToken)
+    private static async Task<Ok<DepositCreatedResponseDto>> Deposit(
+        [FromBody] DepositCreateDto dto, 
+        ClaimsPrincipal user,
+        [FromServices] DepositUserBalanceCommandHandler commandHandler, 
+        CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(dto.Amount, user.GetUserId(), cancellationToken));
+        return TypedResults.Ok(await commandHandler.Handle(new DepositUserBalanceCommand(dto.Amount, user.GetUserId()), cancellationToken));
     }
 
-    private static async Task<Ok<IEnumerable<DepositResponseDto>>> GetMyDeposits(ClaimsPrincipal user,
-        [FromServices]  GetUserDepositsHandler handler, CancellationToken cancellationToken)
+    private static async Task<Ok<IEnumerable<DepositResponseDto>>> GetMyDeposits(
+        ClaimsPrincipal user,
+        [FromServices]  GetUserDepositsQueryHandler queryHandler, 
+        CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(user.GetUserId(), cancellationToken));
+        return TypedResults.Ok(await queryHandler.Handle(new GetUserDepositsQuery(user.GetUserId()), cancellationToken));
     }
 }

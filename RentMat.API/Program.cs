@@ -15,6 +15,7 @@ builder.Services.RegisterSwagger();
 builder.Services.RegisterFusionCache();
 builder.Services.RegisterHandlers();
 builder.Services.RegisterValidators();
+builder.Services.RegisterMediatr();
 builder.Services.RegisterServices();
 
 builder.Services.AddProblemDetails();

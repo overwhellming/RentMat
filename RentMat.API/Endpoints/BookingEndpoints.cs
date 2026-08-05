@@ -1,11 +1,14 @@
 using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using RentMat.API.Common.Security;
+using RentMat.Application.Commands.Booking;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.RentalBooking;
 using RentMat.Application.Handlers.Booking;
-using RentMat.Application.Queries;
+using RentMat.Application.Queries.Booking;
+using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
 
@@ -20,7 +23,7 @@ internal static class BookingEndpoints
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("GetBookings")
             .WithSummary("Returns all bookings")
-            .ProducesProblem(400)
+            .ProducesValidationProblem()
             .ProducesProblem(401)
             .ProducesProblem(403);
         
@@ -43,47 +46,61 @@ internal static class BookingEndpoints
             .WithName("CreateBooking")
             .WithSummary("Creates a booking")
             .ProducesValidationProblem()
-            .ProducesProblem(400)
             .ProducesProblem(401)
             .ProducesProblem(404)
             .ProducesProblem(409);
         
-        group.MapPost("/{id:int}/complete", Complete)
+        group.MapPost("/me/{id:int}/complete", Complete)
             .RequireAuthorization()
-            .WithName("CompleteBooking")
-            .WithSummary("Completes a booking")
+            .WithName("CompleteCurrentUsersBooking")
+            .WithSummary("Completes a current user's booking")
             .ProducesProblem(401)
             .ProducesProblem(403)
             .ProducesProblem(404);
     }
 
-    private static async Task<Ok<PagedResponse<BookingResponseDto>>> GetAll([AsParameters] GetAllBookingsQuery query, [FromServices] GetAllBookingsHandler handler,
+    private static async Task<Ok<PagedResponse<BookingResponseDto>>> GetAll(
+        [AsParameters] GetAllBookingsQuery query, 
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(query, cancellationToken));
+        return TypedResults.Ok(await mediator.Send(query, cancellationToken));
     }
 
-    private static async Task<Ok<BookingResponseDto>> GetById(int id,[FromServices]  GetBookingByIdHandler handler, CancellationToken cancellationToken)
-    {
-        return TypedResults.Ok(await handler.Handle(id, cancellationToken));
-    }
-
-    private static async Task<Ok<IEnumerable<BookingResponseDto>>> GetMy(ClaimsPrincipal user, [FromServices] GetUserBookingsHandler handler,
+    private static async Task<Ok<BookingResponseDto>> GetById(
+        [AsParameters] int id,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await handler.Handle(user.GetUserId(), cancellationToken));
+        return TypedResults.Ok(await mediator.Send(new GetBookingByIdQuery(id), cancellationToken));
     }
 
-    private static async Task<CreatedAtRoute<BookingResponseDto>> Create(BookingCreateDto dto, ClaimsPrincipal user, [FromServices]  CreateBookingHandler handler,
+    private static async Task<Ok<IEnumerable<BookingResponseDto>>> GetMy(
+        ClaimsPrincipal user, 
+        [FromServices] GetUserBookingsQueryHandler queryHandler,
         CancellationToken cancellationToken)
     {
-        var booking = await handler.Handle(dto, cancellationToken);
+        return TypedResults.Ok(await queryHandler.Handle(new GetUserBookingsQuery(user.GetUserId()), cancellationToken));
+    }
+
+    private static async Task<CreatedAtRoute<BookingResponseDto>> Create(
+        [FromBody] BookingCreateDto dto, 
+        ClaimsPrincipal user, 
+        [FromServices]  IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateBookingCommand(dto.DeviceId, dto.UserId, dto.StartDate, dto.EndDate);
+        var booking = await mediator.Send(command, cancellationToken);
         return TypedResults.CreatedAtRoute(booking, routeName: "GetBookingById", routeValues: new {id = booking.Id});
     }
 
-    private static async Task<NoContent> Complete(int id, ClaimsPrincipal user, [FromServices] CompleteBookingHandler handler, CancellationToken cancellationToken)
+    private static async Task<NoContent> Complete(
+        int id, 
+        ClaimsPrincipal user, 
+        [FromServices] CompleteBookingCommandHandler commandHandler, 
+        CancellationToken cancellationToken)
     {
-        await handler.Handle(id, user.GetUserId(), cancellationToken);
+        await commandHandler.Handle(new CompleteBookingCommand(id, user.GetUserId()), cancellationToken);
         return TypedResults.NoContent();
     }
 }

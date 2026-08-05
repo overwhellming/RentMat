@@ -10,25 +10,27 @@ public static class HandlerRegistrar
 {
     public static IServiceCollection RegisterHandlers(this IServiceCollection services)
     {
-        services.AddScoped<GetAllDevicesHandler>();
-        services.AddScoped<GetDeviceByIdHandler>();
-        services.AddScoped<CreateDeviceHandler>();
-        services.AddScoped<UpdateDeviceHandler>();
-        services.AddScoped<RetireDeviceHandler>();
+        services.AddScoped<GetAllDevicesQueryHandler>();
+        services.AddScoped<GetDeviceByIdQueryHandler>();
+        services.AddScoped<CreateDeviceCommandHandler>();
+        services.AddScoped<UpdateDeviceCommandHandler>();
+        services.AddScoped<RetireDeviceCommandHandler>();
 
-        services.AddScoped<GetAllBookingsHandler>();
-        services.AddScoped<GetBookingByIdHandler>();
-        services.AddScoped<GetUserBookingsHandler>();
-        services.AddScoped<CreateBookingHandler>();
-        services.AddScoped<CompleteBookingHandler>();
+        services.AddScoped<GetAllBookingsQueryHandler>();
+        services.AddScoped<GetBookingByIdQueryHandler>();
+        services.AddScoped<GetUserBookingsQueryHandler>();
+        services.AddScoped<CreateBookingCommandHandler>();
+        services.AddScoped<CompleteBookingCommandHandler>();
 
-        services.AddScoped<RegisterHandler>();
-        services.AddScoped<LoginHandler>();
+        services.AddScoped<RegisterCommandHandler>();
+        services.AddScoped<LoginCommandHandler>();
+        services.AddScoped<RefreshTokenCommandHandler>();
+        services.AddScoped<RevokeRefreshTokenCommandHandler>();
 
-        services.AddScoped<GetAllUsersHandler>();
-        services.AddScoped<GetUserByIdHandler>();
-        services.AddScoped<GetUserBalanceHandler>();
-        services.AddScoped<DepositUserBalanceHandler>();
+        services.AddScoped<GetAllUsersQueryHandler>();
+        services.AddScoped<GetUserByIdQueryHandler>();
+        services.AddScoped<GetUserBalanceQueryHandler>();
+        services.AddScoped<DepositUserBalanceCommandHandler>();
         return services;
     }
 }
