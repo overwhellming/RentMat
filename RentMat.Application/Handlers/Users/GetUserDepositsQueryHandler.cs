@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.DTOs.User;
-using RentMat.Application.Exceptions.Users;
 using RentMat.Application.Queries.Users;
 using RentMat.Infrastructure.Data;
 
@@ -16,7 +15,8 @@ public class GetUserDepositsQueryHandler : IRequestHandler<GetUserDepositsQuery,
         _db = db;
     }
 
-    public async Task<IEnumerable<DepositResponseDto>> Handle(GetUserDepositsQuery query, CancellationToken cancellationToken)
+    public async Task<IEnumerable<DepositResponseDto>> Handle(GetUserDepositsQuery query,
+        CancellationToken cancellationToken)
     {
         var deposits = await _db.Deposits
             .Where(d => d.UserId == query.UserId)

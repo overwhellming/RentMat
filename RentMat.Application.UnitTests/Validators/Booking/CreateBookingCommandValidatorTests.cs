@@ -13,10 +13,10 @@ public class CreateBookingCommandValidatorTests
     {
         var command = new CreateBookingCommand
         (
-            DeviceId: 1,
-            UserId: 1,
-            StartDate: DateTimeOffset.UtcNow.AddDays(1),
-            EndDate: DateTimeOffset.UtcNow.AddDays(2)
+            1,
+            1,
+            DateTimeOffset.UtcNow.AddDays(1),
+            DateTimeOffset.UtcNow.AddDays(2)
         );
 
         var result = _validator.TestValidate(command);
@@ -28,25 +28,25 @@ public class CreateBookingCommandValidatorTests
     {
         var command = new CreateBookingCommand
         (
-            DeviceId: 0,
-            UserId: 1,
-            StartDate: DateTimeOffset.UtcNow.AddDays(1),
-            EndDate: DateTimeOffset.UtcNow.AddDays(2)
+            0,
+            1,
+            DateTimeOffset.UtcNow.AddDays(1),
+            DateTimeOffset.UtcNow.AddDays(2)
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.DeviceId);
-    } 
-    
+    }
+
     [Fact]
     public void Should_HaveError_When_UserId_Is_Zero()
     {
         var command = new CreateBookingCommand
         (
-            DeviceId: 1,
-            UserId: 0,
-            StartDate: DateTimeOffset.UtcNow.AddDays(1),
-            EndDate: DateTimeOffset.UtcNow.AddDays(2)
+            1,
+            0,
+            DateTimeOffset.UtcNow.AddDays(1),
+            DateTimeOffset.UtcNow.AddDays(2)
         );
 
         var result = _validator.TestValidate(command);
@@ -58,10 +58,10 @@ public class CreateBookingCommandValidatorTests
     {
         var command = new CreateBookingCommand
         (
-            DeviceId: 1,
-            UserId: 1,
-            StartDate: DateTimeOffset.UtcNow.AddDays(-1),
-            EndDate: DateTimeOffset.UtcNow.AddDays(2)
+            1,
+            1,
+            DateTimeOffset.UtcNow.AddDays(-1),
+            DateTimeOffset.UtcNow.AddDays(2)
         );
 
         var result = _validator.TestValidate(command);
@@ -74,10 +74,10 @@ public class CreateBookingCommandValidatorTests
     {
         var command = new CreateBookingCommand
         (
-            DeviceId: 1,
-            UserId: 1,
-            StartDate: DateTimeOffset.UtcNow.AddDays(5),
-            EndDate: DateTimeOffset.UtcNow.AddDays(2)
+            1,
+            1,
+            DateTimeOffset.UtcNow.AddDays(5),
+            DateTimeOffset.UtcNow.AddDays(2)
         );
 
         var result = _validator.TestValidate(command);

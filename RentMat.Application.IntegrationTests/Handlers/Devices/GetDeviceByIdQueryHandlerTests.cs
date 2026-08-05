@@ -13,9 +13,9 @@ namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 [Collection("Integration Tests Collection")]
 public class GetDeviceByIdQueryHandlerTests : BaseIntegrationTest
 {
-    private readonly GetDeviceByIdQueryHandler _queryHandler;
     private readonly IFusionCache _cache;
-    
+    private readonly GetDeviceByIdQueryHandler _queryHandler;
+
     public GetDeviceByIdQueryHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -28,7 +28,7 @@ public class GetDeviceByIdQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Return_Device()
     {
         const string name = "Laptop";
-        var device = await CreateDeviceAsync(name: name);
+        var device = await CreateDeviceAsync(name);
         var response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
 
         response.Should().NotBeNull();
@@ -40,32 +40,33 @@ public class GetDeviceByIdQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_DeviceNotFoundException_When_DeviceDoesNotExist()
     {
         const int notExistingId = 999;
-        await Assert.ThrowsAsync<DeviceNotFoundException>(() => _queryHandler.Handle(new GetDeviceByIdQuery(notExistingId), CancellationToken.None));
+        await Assert.ThrowsAsync<DeviceNotFoundException>(() =>
+            _queryHandler.Handle(new GetDeviceByIdQuery(notExistingId), CancellationToken.None));
     }
 
     [Fact]
     public async Task Should_Return_CachedDevice_If_CacheExists()
     {
         const string initialName = "Laptop";
-        var device = await CreateDeviceAsync(name: initialName);
-        
+        var device = await CreateDeviceAsync(initialName);
+
         var response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(initialName);
 
         var userInDb = await DbContext.Devices.FindAsync(device.Id);
         userInDb!.Name = initialName + "a";
         await DbContext.SaveChangesAsync();
-        
+
         response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(initialName);
     }
-    
+
     [Fact]
     public async Task Should_Return_UpdatedData_After_CacheInvalidation()
     {
         const string initialName = "Laptop";
-        var device = await CreateDeviceAsync(name: initialName);
-        
+        var device = await CreateDeviceAsync(initialName);
+
         var response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(initialName);
 
@@ -75,7 +76,7 @@ public class GetDeviceByIdQueryHandlerTests : BaseIntegrationTest
         deviceInDb!.Name = newName;
         await DbContext.SaveChangesAsync();
         await _cache.RemoveByTagAsync(CacheTags.Devices);
-        
+
         response = await _queryHandler.Handle(new GetDeviceByIdQuery(device.Id), CancellationToken.None);
         response.Name.Should().Be(newName);
     }

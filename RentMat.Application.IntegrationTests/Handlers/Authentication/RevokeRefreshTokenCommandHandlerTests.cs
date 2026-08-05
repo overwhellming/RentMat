@@ -12,7 +12,7 @@ namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 public class RevokeRefreshTokenCommandHandlerTests : BaseIntegrationTest
 {
     private readonly RevokeRefreshTokenCommandHandler _commandHandler;
-    
+
     public RevokeRefreshTokenCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         var scope = factory.Services.CreateScope();
@@ -23,25 +23,26 @@ public class RevokeRefreshTokenCommandHandlerTests : BaseIntegrationTest
     public async Task Should_Revoke_RefreshToken_In_Database()
     {
         var tokenResponse = await RegisterUserAsync();
-        
+
         var initialTokenEntry =
             await DbContext.RefreshTokenEntries.FirstOrDefaultAsync(e => e.Token == tokenResponse.RefreshToken);
         initialTokenEntry.Should().NotBeNull();
         initialTokenEntry.IsRevoked.Should().BeFalse();
-        
+
         DbContext.ChangeTracker.Clear();
-        
+
         await _commandHandler.Handle(new RevokeRefreshTokenCommand(initialTokenEntry.UserId), CancellationToken.None);
         var revokedTokenEntry =
             await DbContext.RefreshTokenEntries.FirstOrDefaultAsync(e => e.Token == tokenResponse.RefreshToken);
         revokedTokenEntry.Should().NotBeNull();
         revokedTokenEntry.IsRevoked.Should().BeTrue();
     }
+
     [Fact]
     public async Task Should_Throw_ActiveRefreshTokenNotFoundException_When_UserDoesNotExist()
     {
         const int notExistingUserId = 999;
-    
+
         await Assert.ThrowsAsync<ActiveRefreshTokenNotFoundException>(() =>
             _commandHandler.Handle(new RevokeRefreshTokenCommand(notExistingUserId), CancellationToken.None));
     }
@@ -50,7 +51,7 @@ public class RevokeRefreshTokenCommandHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_ActiveRefreshTokenNotFoundException_When_UserHasNoActiveTokens()
     {
         var user = await CreateUserAsync();
-    
+
         await Assert.ThrowsAsync<ActiveRefreshTokenNotFoundException>(() =>
             _commandHandler.Handle(new RevokeRefreshTokenCommand(user.Id), CancellationToken.None));
     }

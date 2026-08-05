@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RentMat.Core.Enums;
 using RentMat.Core.Models;
 
 namespace RentMat.Infrastructure.Data;

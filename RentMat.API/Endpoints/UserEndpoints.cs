@@ -6,7 +6,6 @@ using RentMat.API.Common.Security;
 using RentMat.Application.Commands.Users;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.User;
-using RentMat.Application.Handlers.Users;
 using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
@@ -52,7 +51,7 @@ internal static class UserEndpoints
             .WithSummary("Deposit to the current user's balance")
             .ProducesValidationProblem()
             .ProducesProblem(401);
-        
+
         group.MapGet("/me/deposits", GetMyDeposits)
             .RequireAuthorization()
             .WithName("GetMyDeposits")
@@ -62,15 +61,15 @@ internal static class UserEndpoints
 
     private static async Task<Ok<PagedResponse<UserResponseDto>>> GetAll(
         [AsParameters] GetAllUsersQuery query,
-        [FromServices]  IMediator mediator,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await mediator.Send(query, cancellationToken));
     }
 
     private static async Task<Ok<UserResponseDto>> GetById(
-        [AsParameters] int id, 
-        [FromServices]  IMediator mediator,
+        [AsParameters] int id,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await mediator.Send(new GetUserByIdQuery(id), cancellationToken));
@@ -78,32 +77,33 @@ internal static class UserEndpoints
 
     private static async Task<Ok<UserResponseDto>> GetMe(
         ClaimsPrincipal user,
-        [FromServices]  IMediator mediator,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await mediator.Send(new GetUserByIdQuery(user.GetUserId()), cancellationToken));
     }
 
     private static async Task<Ok<decimal>> GetMyBalance(
-        ClaimsPrincipal user, 
-        [FromServices]  IMediator mediator,
+        ClaimsPrincipal user,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await mediator.Send(new GetUserBalanceQuery(user.GetUserId()), cancellationToken));
     }
 
     private static async Task<Ok<DepositCreatedResponseDto>> Deposit(
-        [FromBody] DepositCreateDto dto, 
+        [FromBody] DepositCreateDto dto,
         ClaimsPrincipal user,
-        [FromServices]  IMediator mediator,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        return TypedResults.Ok(await mediator.Send(new DepositUserBalanceCommand(dto.Amount, user.GetUserId()), cancellationToken));
+        return TypedResults.Ok(await mediator.Send(new DepositUserBalanceCommand(dto.Amount, user.GetUserId()),
+            cancellationToken));
     }
 
     private static async Task<Ok<IEnumerable<DepositResponseDto>>> GetMyDeposits(
         ClaimsPrincipal user,
-        [FromServices]  IMediator mediator,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await mediator.Send(new GetUserDepositsQuery(user.GetUserId()), cancellationToken));

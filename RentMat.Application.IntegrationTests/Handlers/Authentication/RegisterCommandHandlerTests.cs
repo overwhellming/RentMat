@@ -1,5 +1,4 @@
 using FluentAssertions;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RentMat.Application.Commands.Authentication;
@@ -16,9 +15,9 @@ public class RegisterCommandHandlerTests : BaseIntegrationTest
     private const string Login = "John";
     private const string Email = "john@test.com";
     private const string Password = "Password123";
+    private readonly IFusionCache _cache;
 
     private readonly RegisterCommandHandler _commandHandler;
-    private readonly IFusionCache _cache;
 
     public RegisterCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
@@ -39,7 +38,7 @@ public class RegisterCommandHandlerTests : BaseIntegrationTest
         var userInDb = await DbContext.Users.FirstOrDefaultAsync(u => u.Email == command.Email);
         userInDb.Should().NotBeNull();
         userInDb.Login.Should().Be(command.Login);
-        
+
         var refreshTokenInDb = await DbContext.RefreshTokenEntries
             .FirstOrDefaultAsync(t => t.Token == response.RefreshToken);
         refreshTokenInDb.Should().NotBeNull();
@@ -51,7 +50,7 @@ public class RegisterCommandHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_UserAlreadyExistsException_When_UserExists()
     {
         var command = new RegisterCommand(Login, Email, Password);
-        await CreateUserAsync(Login, Email,  password: Password);
+        await CreateUserAsync(Login, Email, password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>
             _commandHandler.Handle(command, CancellationToken.None));
     }
@@ -59,7 +58,7 @@ public class RegisterCommandHandlerTests : BaseIntegrationTest
     [Fact]
     public async Task Should_Throw_UserAlreadyExistsException_When_TrimmedEmail_AlreadyExists()
     {
-        await CreateUserAsync("Mark", Email,  password: Password);
+        await CreateUserAsync("Mark", Email, password: Password);
         await Assert.ThrowsAsync<UserAlreadyExistsException>(() =>
             _commandHandler.Handle(new RegisterCommand(Login, Email + " ", Password), CancellationToken.None));
     }

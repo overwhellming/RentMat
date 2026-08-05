@@ -10,7 +10,7 @@ namespace RentMat.Application.IntegrationTests.Handlers.Booking;
 public class GetUserBookingsQueryHandlerTests : BaseIntegrationTest
 {
     private readonly GetUserBookingsQueryHandler _queryHandler;
-    
+
     public GetUserBookingsQueryHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         _queryHandler = new GetUserBookingsQueryHandler(DbContext);
@@ -29,6 +29,7 @@ public class GetUserBookingsQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_UserNotFoundException_WhenUserDoesNotExist()
     {
         const int notExistingId = 999;
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _queryHandler.Handle(new GetUserBookingsQuery(notExistingId), CancellationToken.None));
+        await Assert.ThrowsAsync<UserNotFoundException>(() =>
+            _queryHandler.Handle(new GetUserBookingsQuery(notExistingId), CancellationToken.None));
     }
 }

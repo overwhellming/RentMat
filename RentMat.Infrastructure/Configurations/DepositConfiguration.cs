@@ -15,7 +15,7 @@ public class DepositConfiguration : IEntityTypeConfiguration<Deposit>
             .WithMany(u => u.Deposits)
             .HasForeignKey(d => d.UserId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         b.HasIndex(d => d.UserId);
         b.HasIndex(d => new { d.UserId, d.CreatedAt });
     }

@@ -10,7 +10,7 @@ public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
     private readonly IProblemDetailsService _problemDetailsService;
-    
+
     public ExceptionHandler(ILogger<ExceptionHandler> logger, IProblemDetailsService problemDetailsService)
     {
         _logger = logger;
@@ -21,7 +21,7 @@ public class ExceptionHandler : IExceptionHandler
         CancellationToken cancellationToken)
     {
         var (statusCode, title, detail) = MapException(exception);
-        
+
         if (statusCode == HttpStatusCode.InternalServerError)
             _logger.LogError(exception, "Unhandled exception occured");
         else
@@ -36,7 +36,7 @@ public class ExceptionHandler : IExceptionHandler
                 Title = title,
                 Detail = detail
             },
-            Exception = exception,
+            Exception = exception
         });
     }
 
@@ -48,7 +48,7 @@ public class ExceptionHandler : IExceptionHandler
             BadHttpRequestException badReqEx => (HttpStatusCode.BadRequest,
                 "One or more request parameters are invalid", badReqEx.Message),
             SecurityTokenException securityTokenEx => (HttpStatusCode.Unauthorized,
-                    "Invalid token", securityTokenEx.Message), 
+                "Invalid token", securityTokenEx.Message),
             _ => (HttpStatusCode.InternalServerError, "Internal server error", "An unexpected error occured")
         };
     }

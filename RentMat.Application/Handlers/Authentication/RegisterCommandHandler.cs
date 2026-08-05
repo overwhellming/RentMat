@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using RentMat.Application.Commands.Authentication;
 using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Exceptions.Users;
-using RentMat.Application.Services.Interfaces;
 using RentMat.Core.Models;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
@@ -15,7 +14,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, TokenResp
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
     private readonly IMediator _mediator;
-    
+
     public RegisterCommandHandler(AppDbContext db, IFusionCache cache, IMediator mediator)
     {
         _db = db;
@@ -27,8 +26,8 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, TokenResp
     {
         var formattedLogin = command.Login.Trim();
         var formattedEmail = command.Email.Trim().ToLowerInvariant();
-        
-        var userExists = await _db.Users.AnyAsync(u => u.Login == formattedLogin 
+
+        var userExists = await _db.Users.AnyAsync(u => u.Login == formattedLogin
                                                        || u.Email == formattedEmail,
             cancellationToken);
 
@@ -51,7 +50,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, TokenResp
         await _cache.RemoveByTagAsync("users");
 
         var tokenResponse = await _mediator.Send(new LoginCommand(command.Login, command.Password), cancellationToken);
-        
+
         return tokenResponse;
     }
 }

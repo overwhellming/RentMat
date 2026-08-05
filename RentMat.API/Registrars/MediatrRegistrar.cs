@@ -1,5 +1,4 @@
 using RentMat.Application.Handlers.Devices;
-using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Registrars;
 

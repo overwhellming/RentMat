@@ -1,6 +1,5 @@
 using FluentValidation;
 using RentMat.Application.Commands.Booking;
-using RentMat.Application.DTOs.RentalBooking;
 
 namespace RentMat.Application.Validators.Booking;
 
@@ -10,10 +9,10 @@ public class CreateBookingCommandValidator : AbstractValidator<CreateBookingComm
     {
         RuleFor(x => x.DeviceId)
             .GreaterThan(0);
-        
+
         RuleFor(x => x.UserId)
             .GreaterThan(0);
-        
+
         RuleFor(x => x.StartDate)
             .Cascade(CascadeMode.Stop)
             .GreaterThanOrEqualTo(_ => DateTimeOffset.UtcNow)

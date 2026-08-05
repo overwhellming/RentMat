@@ -13,9 +13,9 @@ namespace RentMat.Application.IntegrationTests.Handlers.Users;
 [Collection("Integration Tests Collection")]
 public class GetUserByIdQueryHandlerTests : BaseIntegrationTest
 {
-    private readonly GetUserByIdQueryHandler _queryHandler;
     private readonly IFusionCache _cache;
-    
+    private readonly GetUserByIdQueryHandler _queryHandler;
+
     public GetUserByIdQueryHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -28,7 +28,7 @@ public class GetUserByIdQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Return_User()
     {
         const string login = "Alexi";
-        var user = await CreateUserAsync(login: login);
+        var user = await CreateUserAsync(login);
         var response = await _queryHandler.Handle(new GetUserByIdQuery(user.Id), CancellationToken.None);
 
         response.Should().NotBeNull();
@@ -40,7 +40,8 @@ public class GetUserByIdQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_UserNotFoundException_When_UserDoesNotExist()
     {
         const int notExistingId = 999;
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _queryHandler.Handle(new GetUserByIdQuery(notExistingId), CancellationToken.None));
+        await Assert.ThrowsAsync<UserNotFoundException>(() =>
+            _queryHandler.Handle(new GetUserByIdQuery(notExistingId), CancellationToken.None));
     }
 
     [Fact]
@@ -48,24 +49,24 @@ public class GetUserByIdQueryHandlerTests : BaseIntegrationTest
     {
         const decimal initialBalance = 100;
         var user = await CreateUserAsync(balance: initialBalance);
-        
+
         var response = await _queryHandler.Handle(new GetUserByIdQuery(user.Id), CancellationToken.None);
         response.Balance.Should().Be(initialBalance);
 
         var userInDb = await DbContext.Users.FindAsync(user.Id);
         userInDb!.Balance = initialBalance + 1;
         await DbContext.SaveChangesAsync();
-        
+
         response = await _queryHandler.Handle(new GetUserByIdQuery(user.Id), CancellationToken.None);
         response.Balance.Should().Be(initialBalance);
     }
-    
+
     [Fact]
     public async Task Should_Return_UpdatedData_After_CacheInvalidation()
     {
         const decimal initialBalance = 100;
         var user = await CreateUserAsync(balance: initialBalance);
-        
+
         var response = await _queryHandler.Handle(new GetUserByIdQuery(user.Id), CancellationToken.None);
         response.Balance.Should().Be(initialBalance);
 
@@ -73,7 +74,7 @@ public class GetUserByIdQueryHandlerTests : BaseIntegrationTest
         userInDb!.Balance = initialBalance + 1;
         await DbContext.SaveChangesAsync();
         await _cache.RemoveByTagAsync(CacheTags.Users);
-        
+
         response = await _queryHandler.Handle(new GetUserByIdQuery(user.Id), CancellationToken.None);
         response.Balance.Should().Be(initialBalance + 1);
     }

@@ -17,7 +17,7 @@ internal static class SwaggerRegistrar
                 Scheme = "Bearer",
                 BearerFormat = "JWT"
             });
-            
+
             options.OperationFilter<AuthorizeCheckOperationFilter>();
         });
         return services;

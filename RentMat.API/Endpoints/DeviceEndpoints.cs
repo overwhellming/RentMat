@@ -1,14 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using RentMat.API.Common.Security;
 using RentMat.Application.Commands.Devices;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
-using RentMat.Application.Handlers.Devices;
 using RentMat.Application.Queries.Devices;
-using RentMat.Application.Queries.Users;
 
 namespace RentMat.API.Endpoints;
 
@@ -28,14 +25,14 @@ internal static class DeviceEndpoints
             .WithName("GetDeviceById")
             .WithSummary("Returns a device by id")
             .ProducesValidationProblem();
-        
+
         group.MapPost("/create", Create)
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("CreateDevice")
             .WithSummary("Creates a device")
             .ProducesValidationProblem()
             .ProducesProblem(404);
-        
+
         group.MapPut("/{id:int}", Update)
             .RequireAuthorization(Policies.AdminOnly)
             .WithName("UpdateDevice")
@@ -56,7 +53,7 @@ internal static class DeviceEndpoints
     }
 
     private static async Task<Ok<PagedResponse<DeviceResponseDto>>> GetAll(
-        [AsParameters] GetAllDevicesQuery query, 
+        [AsParameters] GetAllDevicesQuery query,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
@@ -65,27 +62,27 @@ internal static class DeviceEndpoints
     }
 
     private static async Task<Ok<DeviceResponseDto>> GetById(
-        [AsParameters] int id, 
-        [FromServices]  IMediator mediator,
+        [AsParameters] int id,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         return TypedResults.Ok(await mediator.Send(new GetDeviceByIdQuery(id), cancellationToken));
     }
-    
+
     private static async Task<CreatedAtRoute<DeviceResponseDto>> Create(
-        [FromBody] DeviceCreateDto dto, 
+        [FromBody] DeviceCreateDto dto,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         var command = new CreateDeviceCommand(dto.Name, dto.HourRentPrice, dto.CategoryId);
         var device = await mediator.Send(command, cancellationToken);
-        return TypedResults.CreatedAtRoute(device, routeName:"GetDeviceById", routeValues: new {id = device.Id});
+        return TypedResults.CreatedAtRoute(device, "GetDeviceById", new { id = device.Id });
     }
 
     private static async Task<NoContent> Update(
-        [AsParameters] int id, 
-        [FromBody] DeviceUpdateDto dto, 
-        [FromServices]  IMediator mediator,
+        [AsParameters] int id,
+        [FromBody] DeviceUpdateDto dto,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         var command = new UpdateDeviceCommand(id, dto.Name, dto.HourRentPrice, dto.CategoryId);
@@ -94,8 +91,8 @@ internal static class DeviceEndpoints
     }
 
     private static async Task<NoContent> Retire(
-        [AsParameters] int id, 
-        [FromServices] IMediator mediator, 
+        [AsParameters] int id,
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         await mediator.Send(new RetireDeviceCommand(id), cancellationToken);

@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RentMat.Application.Commands.Devices;
 using RentMat.Application.Common;
-using RentMat.Application.DTOs.Device;
 using RentMat.Application.Exceptions.Devices;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
@@ -36,10 +35,10 @@ public class UpdateDeviceCommandHandler : IRequestHandler<UpdateDeviceCommand>
         var hasActiveBookings = await _db.Bookings.AnyAsync(b =>
                 b.DeviceId == command.Id && (b.Status == BookingStatus.Active || b.Status == BookingStatus.Created),
             cancellationToken);
-        hasActiveBookings = hasActiveBookings || 
+        hasActiveBookings = hasActiveBookings ||
                             (await _db.Devices.FindAsync(device.Id, cancellationToken))!
                             .Status == DeviceStatus.Rented;
-        
+
         if (hasActiveBookings)
             throw new DeviceIsBookedException(command.Id);
 

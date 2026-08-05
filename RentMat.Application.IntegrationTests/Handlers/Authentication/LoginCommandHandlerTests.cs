@@ -1,13 +1,10 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using RentMat.Application.Commands.Authentication;
-using RentMat.Application.DTOs.Authentication;
 using RentMat.Application.Exceptions.Authentication;
 using RentMat.Application.Handlers.Authentication;
 using RentMat.Application.IntegrationTests.Infrastructure;
-using RentMat.Application.Services.Interfaces;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Authentication;
 
@@ -32,7 +29,7 @@ public class LoginCommandHandlerTests : BaseIntegrationTest
         var token = await _commandHandler.Handle(command, CancellationToken.None);
         token.AccessToken.Should().NotBeNullOrEmpty();
         token.RefreshToken.Should().NotBeNullOrEmpty();
-        
+
         var tokenInDb = await DbContext.RefreshTokenEntries.FirstOrDefaultAsync(e => e.Token == token.RefreshToken);
         tokenInDb.Should().NotBeNull();
         tokenInDb.UserId.Should().Be(user.Id);

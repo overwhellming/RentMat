@@ -13,7 +13,7 @@ public class GetAllBookingsQueryHandler : IRequestHandler<GetAllBookingsQuery, P
 {
     public const int DefaultPageSize = 10;
     public const int MaxPageSize = 50;
-    
+
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
     private readonly ILogger<GetAllBookingsQueryHandler> _logger;

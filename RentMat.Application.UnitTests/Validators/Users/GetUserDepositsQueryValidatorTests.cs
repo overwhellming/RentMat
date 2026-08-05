@@ -13,7 +13,7 @@ public class GetUserDepositsQueryValidatorTests
     {
         var query = new GetUserDepositsQuery
         (
-            UserId: 1
+            1
         );
 
         var result = _validator.TestValidate(query);
@@ -25,7 +25,7 @@ public class GetUserDepositsQueryValidatorTests
     {
         var query = new GetUserDepositsQuery
         (
-            UserId: 0
+            0
         );
 
         var result = _validator.TestValidate(query);

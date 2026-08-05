@@ -14,86 +14,86 @@ public class LoginCommandValidatorTests
     {
         var command = new LoginCommand
         (
-            Login: new string('a', ValidationConstants.UserLoginMaxLength),
-            Password: new string('a', ValidationConstants.UserPasswordMinLength)
+            new string('a', ValidationConstants.UserLoginMaxLength),
+            new string('a', ValidationConstants.UserPasswordMinLength)
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldNotHaveAnyValidationErrors();
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Login_Is_Empty()
     {
         var command = new LoginCommand
         (
-            Login: string.Empty,
-            Password: new string('a', ValidationConstants.UserPasswordMinLength)
+            string.Empty,
+            new string('a', ValidationConstants.UserPasswordMinLength)
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Login);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Login_Contains_Whitespaces()
     {
         var command = new LoginCommand
         (
-            Login: new string('a', ValidationConstants.UserLoginMaxLength) + ' ',
-            Password: new string('a', ValidationConstants.UserPasswordMinLength)
+            new string('a', ValidationConstants.UserLoginMaxLength) + ' ',
+            new string('a', ValidationConstants.UserPasswordMinLength)
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Login);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Login_Exceed_MaximumLength()
     {
         var command = new LoginCommand
         (
-            Login: new string('a', ValidationConstants.UserLoginMaxLength + 1),
-            Password: new string('a', ValidationConstants.UserPasswordMinLength)
+            new string('a', ValidationConstants.UserLoginMaxLength + 1),
+            new string('a', ValidationConstants.UserPasswordMinLength)
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Login);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Password_Is_Empty()
     {
         var command = new LoginCommand
         (
-            Login: new string('a', ValidationConstants.UserLoginMaxLength),
-            Password: string.Empty
+            new string('a', ValidationConstants.UserLoginMaxLength),
+            string.Empty
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Password);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Password_Exceed_MaximumLength()
     {
         var command = new LoginCommand
         (
-            Login: new string('a', ValidationConstants.UserLoginMaxLength),
-            Password: new string('a', ValidationConstants.UserPasswordMaxLength + 1)
+            new string('a', ValidationConstants.UserLoginMaxLength),
+            new string('a', ValidationConstants.UserPasswordMaxLength + 1)
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Password);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Password_Is_Shorter_Than_MinimumLength()
     {
         var command = new LoginCommand
         (
-            Login: new string('a', ValidationConstants.UserLoginMaxLength),
-            Password: new string('a', ValidationConstants.UserPasswordMinLength - 1)
+            new string('a', ValidationConstants.UserLoginMaxLength),
+            new string('a', ValidationConstants.UserPasswordMinLength - 1)
         );
 
         var result = _validator.TestValidate(command);

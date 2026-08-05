@@ -9,8 +9,8 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
-        <PackageReference Include="FluentAssertions" Version="8.10.0" />
-        <PackageReference Include="FluentValidation.Validators.UnitTestExtension" Version="1.12.0.5" />
+        <PackageReference Include="FluentAssertions" Version="8.10.0"/>
+        <PackageReference Include="FluentValidation.Validators.UnitTestExtension" Version="1.12.0.5"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageReference Include="xunit" Version="2.9.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4"/>
@@ -21,9 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RentMat.Application\RentMat.Application.csproj" />
-      <ProjectReference Include="..\RentMat.Core\RentMat.Core.csproj" />
-      <ProjectReference Include="..\RentMat.Infrastructure\RentMat.Infrastructure.csproj" />
+        <ProjectReference Include="..\RentMat.Application\RentMat.Application.csproj"/>
+        <ProjectReference Include="..\RentMat.Core\RentMat.Core.csproj"/>
+        <ProjectReference Include="..\RentMat.Infrastructure\RentMat.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>

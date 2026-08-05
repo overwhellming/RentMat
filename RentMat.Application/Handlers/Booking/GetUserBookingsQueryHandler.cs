@@ -16,7 +16,8 @@ public class GetUserBookingsQueryHandler : IRequestHandler<GetUserBookingsQuery,
         _db = db;
     }
 
-    public async Task<IEnumerable<BookingResponseDto>> Handle(GetUserBookingsQuery query, CancellationToken cancellationToken)
+    public async Task<IEnumerable<BookingResponseDto>> Handle(GetUserBookingsQuery query,
+        CancellationToken cancellationToken)
     {
         var login = await _db.Users.Where(u => u.Id == query.UserId)
             .Select(u => u.Login)

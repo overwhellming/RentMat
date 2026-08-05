@@ -15,7 +15,7 @@ internal class RemoveSecurityRequirementsOperationFilter : IOperationFilter
         // 2. Check if [AllowAnonymous] overrides it
         var hasAllowAnonymous =
             context.MethodInfo.GetCustomAttributes(true).OfType<AllowAnonymousAttribute>().Any();
-        
+
         // 3. Additive strategy: Inject the requirement ONLY on valid secured endpoints
         if (hasAuth && !hasAllowAnonymous)
         {

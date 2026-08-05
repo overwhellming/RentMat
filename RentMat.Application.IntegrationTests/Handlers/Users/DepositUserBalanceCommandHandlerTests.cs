@@ -1,12 +1,10 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RentMat.Application.Commands.Users;
 using RentMat.Application.Common;
 using RentMat.Application.Exceptions.Users;
 using RentMat.Application.Handlers.Users;
 using RentMat.Application.IntegrationTests.Infrastructure;
-using RentMat.Core.Models;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
@@ -14,9 +12,9 @@ namespace RentMat.Application.IntegrationTests.Handlers.Users;
 [Collection("Integration Tests Collection")]
 public class DepositUserBalanceCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly DepositUserBalanceCommandHandler _commandHandler;
     private readonly IFusionCache _cache;
-    
+    private readonly DepositUserBalanceCommandHandler _commandHandler;
+
     public DepositUserBalanceCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -28,14 +26,15 @@ public class DepositUserBalanceCommandHandlerTests : BaseIntegrationTest
     public async Task Should_IncreaseBalance_And_CreateDepositRecord()
     {
         const decimal depositAmount = 100;
-        
+
         var user = await CreateUserAsync();
         var initialBalance = user.Balance;
 
-        var response = await _commandHandler.Handle(new DepositUserBalanceCommand(depositAmount, user.Id), CancellationToken.None);
+        var response = await _commandHandler.Handle(new DepositUserBalanceCommand(depositAmount, user.Id),
+            CancellationToken.None);
 
         DbContext.ChangeTracker.Clear();
-        var updatedUser = (await DbContext.Users.FindAsync(user.Id));
+        var updatedUser = await DbContext.Users.FindAsync(user.Id);
         updatedUser.Should().NotBeNull();
         updatedUser.Balance.Should().Be(initialBalance + depositAmount);
 
@@ -55,7 +54,8 @@ public class DepositUserBalanceCommandHandlerTests : BaseIntegrationTest
         const decimal depositAmount = 100;
         const int notExistingId = 999;
         await Assert.ThrowsAsync<UserNotFoundException>(() =>
-            _commandHandler.Handle(new DepositUserBalanceCommand(depositAmount, notExistingId), CancellationToken.None));
+            _commandHandler.Handle(new DepositUserBalanceCommand(depositAmount, notExistingId),
+                CancellationToken.None));
     }
 
     [Fact]

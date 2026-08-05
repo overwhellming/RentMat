@@ -13,4 +13,4 @@ public class User
     public DateTimeOffset CreatedAt { get; init; }
 
     public ICollection<Deposit> Deposits { get; set; } = [];
-} 
+}

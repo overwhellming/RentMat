@@ -14,9 +14,9 @@ namespace RentMat.Application.IntegrationTests.Handlers.Booking;
 [Collection("Integration Tests Collection")]
 public class CreateBookingCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly CreateBookingCommandHandler _commandHandler;
     private readonly IFusionCache _cache;
-    
+    private readonly CreateBookingCommandHandler _commandHandler;
+
     public CreateBookingCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -29,18 +29,18 @@ public class CreateBookingCommandHandlerTests : BaseIntegrationTest
     {
         const decimal initialBalance = 1000m;
         const decimal hourRentPrice = 20m;
-        
+
         var user = await CreateUserAsync(balance: initialBalance);
         var device = await CreateDeviceAsync(hourRentPrice: hourRentPrice);
 
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
-        
+
         var command = new CreateBookingCommand(device.Id,
             user.Id,
-            startDate, 
+            startDate,
             endDate);
-        
+
         var response = await _commandHandler.Handle(command, CancellationToken.None);
         response.Should().NotBeNull();
         response.DeviceName.Should().Be(device.Name);
@@ -58,7 +58,7 @@ public class CreateBookingCommandHandlerTests : BaseIntegrationTest
         bookingInDb.Status.Should().Be(BookingStatus.Created);
 
         var userInDb = await DbContext.Users.FindAsync(user.Id);
-        
+
         var hours = (decimal)(command.EndDate - command.StartDate).TotalMinutes / 60m;
         var totalPrice = hours * hourRentPrice;
 
@@ -73,10 +73,10 @@ public class CreateBookingCommandHandlerTests : BaseIntegrationTest
 
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
-        
+
         var command = new CreateBookingCommand(device.Id,
             notExistingId,
-            startDate, 
+            startDate,
             endDate);
 
         await Assert.ThrowsAsync<UserNotFoundException>(() => _commandHandler.Handle(command, CancellationToken.None));
@@ -89,100 +89,104 @@ public class CreateBookingCommandHandlerTests : BaseIntegrationTest
         var user = await CreateUserAsync();
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
-        
+
         var command = new CreateBookingCommand(notExistingId,
             user.Id,
-            startDate, 
+            startDate,
             endDate);
-        
-        await Assert.ThrowsAsync<DeviceNotFoundException>(() => _commandHandler.Handle(command, CancellationToken.None));
+
+        await Assert.ThrowsAsync<DeviceNotFoundException>(() =>
+            _commandHandler.Handle(command, CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_Throw_DeviceIsNotAvailableException_When_Device_IsNot_Available()
     {
         const decimal initialBalance = 1000m;
         const decimal hourRentPrice = 20m;
-        
+
         var user = await CreateUserAsync(balance: initialBalance);
         var device = await CreateDeviceAsync(hourRentPrice: hourRentPrice, status: DeviceStatus.Maintenance);
 
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
-        
+
         var command = new CreateBookingCommand(device.Id,
             user.Id,
-            startDate, 
+            startDate,
             endDate);
-        
-        await Assert.ThrowsAsync<DeviceIsNotAvailableException>(() => _commandHandler.Handle(command, CancellationToken.None));
+
+        await Assert.ThrowsAsync<DeviceIsNotAvailableException>(() =>
+            _commandHandler.Handle(command, CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_Throw_DeviceIsBookedException_When_Device_Is_Booked()
     {
         const decimal initialBalance = 1000m;
         const decimal hourRentPrice = 20m;
-        
+
         var user = await CreateUserAsync(balance: initialBalance);
         var device = await CreateDeviceAsync(hourRentPrice: hourRentPrice);
-        
+
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
-        
-        await CreateBookingAsync(startDate: startDate, endDate: endDate, deviceId: device.Id, userId: user.Id);
-        
+
+        await CreateBookingAsync(startDate, endDate, deviceId: device.Id, userId: user.Id);
+
         var command = new CreateBookingCommand(device.Id,
             user.Id,
-            startDate, 
+            startDate,
             endDate);
-        
-        await Assert.ThrowsAsync<DeviceIsBookedException>(() => _commandHandler.Handle(command, CancellationToken.None));
+
+        await Assert.ThrowsAsync<DeviceIsBookedException>(() =>
+            _commandHandler.Handle(command, CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_Throw_NotEnoughMoneyException_When_UserDoesNotHaveEnoughMoney()
     {
         const decimal initialBalance = 0;
         const decimal hourRentPrice = 20m;
-        
+
         var user = await CreateUserAsync(balance: initialBalance);
         var device = await CreateDeviceAsync(hourRentPrice: hourRentPrice);
-        
+
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
-        
+
         var command = new CreateBookingCommand(device.Id,
             user.Id,
-            startDate, 
+            startDate,
             endDate);
-        
-        await Assert.ThrowsAsync<NotEnoughMoneyException>(() => _commandHandler.Handle(command, CancellationToken.None));
+
+        await Assert.ThrowsAsync<NotEnoughMoneyException>(() =>
+            _commandHandler.Handle(command, CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_InvalidateCache_After_Creation()
     {
         const decimal initialBalance = 1000;
         const decimal hourRentPrice = 20m;
-        
+
         var user = await CreateUserAsync(balance: initialBalance);
         var device = await CreateDeviceAsync(hourRentPrice: hourRentPrice);
-        
+
         var startDate = DateTimeOffset.UtcNow.AddDays(1);
         var endDate = DateTimeOffset.UtcNow.AddDays(2);
         var command = new CreateBookingCommand(device.Id,
             user.Id,
-            startDate, 
+            startDate,
             endDate);
 
         const string cacheKey = "key";
         await _cache.SetAsync(cacheKey, "test", tags: [CacheTags.Bookings]);
         var cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeTrue();
-        
+
         await _commandHandler.Handle(command, CancellationToken.None);
-        
+
         cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeFalse();
     }

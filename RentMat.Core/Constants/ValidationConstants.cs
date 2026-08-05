@@ -3,7 +3,7 @@ namespace RentMat.Core.Constants;
 public static class ValidationConstants
 {
     public const int DeviceSearchMaxLength = 100;
-    
+
     public const int DeviceNameMaxLength = 100;
     public const int DeviceStatusMaxLength = 50;
 
@@ -19,6 +19,6 @@ public static class ValidationConstants
     public const int BookingStatusMaxLength = 50;
 
     public const int BookingSearchMaxLength = DeviceSearchMaxLength;
-    
+
     public const decimal MaxDepositAmount = 2_000_000;
 }

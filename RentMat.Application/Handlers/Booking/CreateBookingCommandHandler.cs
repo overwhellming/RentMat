@@ -15,7 +15,7 @@ namespace RentMat.Application.Handlers.Booking;
 public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, BookingResponseDto>
 {
     private const int MinutesBetweenRents = 15;
-    
+
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
 

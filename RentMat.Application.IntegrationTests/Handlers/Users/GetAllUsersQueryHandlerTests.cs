@@ -6,7 +6,6 @@ using RentMat.Application.Handlers.Users;
 using RentMat.Application.IntegrationTests.Infrastructure;
 using RentMat.Application.Queries.Users;
 using RentMat.Core.Enums;
-using Serilog;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace RentMat.Application.IntegrationTests.Handlers.Users;
@@ -17,9 +16,9 @@ public class GetAllUsersQueryHandlerTests : BaseIntegrationTest
     private const string Login1 = "Alice";
     private const string Login2 = "Bob";
     private const string Login3 = "Charlie";
-    
-    private readonly GetAllUsersQueryHandler _queryHandler;
     private readonly IFusionCache _cache;
+
+    private readonly GetAllUsersQueryHandler _queryHandler;
 
     public GetAllUsersQueryHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
@@ -40,14 +39,14 @@ public class GetAllUsersQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Return_PaginatedResult()
     {
         const int userAmount = 15;
-        await CreateUsersAsync(amount: userAmount);
+        await CreateUsersAsync(userAmount);
 
         const int pageSize = 10;
-        var result = await _queryHandler.Handle(new GetAllUsersQuery(Page: 1, PageSize: pageSize),
+        var result = await _queryHandler.Handle(new GetAllUsersQuery(1, pageSize),
             CancellationToken.None);
         result.Items.Should().HaveCount(10);
 
-        result = await _queryHandler.Handle(new GetAllUsersQuery(Page: 2, PageSize: pageSize),
+        result = await _queryHandler.Handle(new GetAllUsersQuery(2, pageSize),
             CancellationToken.None);
         result.Items.Should().HaveCount(5);
     }
@@ -59,9 +58,9 @@ public class GetAllUsersQueryHandlerTests : BaseIntegrationTest
     [InlineData("Not found", 0)]
     public async Task Should_Return_FilteredResult_By_Search(string search, int expectedCount)
     {
-        await CreateUserAsync(login: Login1);
-        await CreateUserAsync(login: Login2);
-        await CreateUserAsync(login: Login3);
+        await CreateUserAsync(Login1);
+        await CreateUserAsync(Login2);
+        await CreateUserAsync(Login3);
 
         var result = await _queryHandler.Handle(new GetAllUsersQuery(Search: search),
             CancellationToken.None);
@@ -77,7 +76,7 @@ public class GetAllUsersQueryHandlerTests : BaseIntegrationTest
         await CreateUserAsync(role: role1);
         await CreateUserAsync(role: role2);
 
-        var result = await _queryHandler.Handle(new GetAllUsersQuery(Role: role1), 
+        var result = await _queryHandler.Handle(new GetAllUsersQuery(Role: role1),
             CancellationToken.None);
         result.Items.Should().HaveCount(1);
         result.Items.Select(u => u.Role).Should().BeEquivalentTo(role1.ToString());
@@ -87,29 +86,29 @@ public class GetAllUsersQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Return_CachedUsers_If_CacheExists()
     {
         const int userAmount = 5;
-        await CreateUsersAsync(amount: userAmount);
+        await CreateUsersAsync(userAmount);
 
         var result = await _queryHandler.Handle(new GetAllUsersQuery(), CancellationToken.None);
         result.TotalItems.Should().Be(userAmount);
 
         await CreateUserAsync();
-        
+
         result = await _queryHandler.Handle(new GetAllUsersQuery(), CancellationToken.None);
         result.TotalItems.Should().Be(userAmount);
     }
-    
+
     [Fact]
     public async Task Should_Return_UpdatedData_After_CacheInvalidation()
     {
         const int userAmount = 5;
-        await CreateUsersAsync(amount: userAmount);
+        await CreateUsersAsync(userAmount);
 
         var result = await _queryHandler.Handle(new GetAllUsersQuery(), CancellationToken.None);
         result.TotalItems.Should().Be(userAmount);
 
         await CreateUserAsync();
         await _cache.RemoveByTagAsync(CacheTags.Users);
-        
+
         result = await _queryHandler.Handle(new GetAllUsersQuery(), CancellationToken.None);
         result.TotalItems.Should().Be(userAmount + 1);
     }

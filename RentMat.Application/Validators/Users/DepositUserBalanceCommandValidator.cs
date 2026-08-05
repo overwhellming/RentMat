@@ -1,6 +1,5 @@
 using FluentValidation;
 using RentMat.Application.Commands.Users;
-using RentMat.Application.DTOs.User;
 using RentMat.Core.Constants;
 
 namespace RentMat.Application.Validators.Users;

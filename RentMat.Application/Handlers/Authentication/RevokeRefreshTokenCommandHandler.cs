@@ -19,7 +19,7 @@ public class RevokeRefreshTokenCommandHandler : IRequestHandler<RevokeRefreshTok
     {
         var tokenEntry =
             await _db.RefreshTokenEntries.FirstOrDefaultAsync(e => e.UserId == command.UserId, cancellationToken);
-        
+
         if (tokenEntry is null)
             throw new ActiveRefreshTokenNotFoundException(command.UserId);
 

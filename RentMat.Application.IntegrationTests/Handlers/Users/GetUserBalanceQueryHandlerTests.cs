@@ -29,6 +29,7 @@ public class GetUserBalanceQueryHandlerTests : BaseIntegrationTest
     public async Task Should_Throw_UserNotFoundException_When_UserDoesNotExist()
     {
         const int notExistingId = 999;
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _queryHandler.Handle(new GetUserBalanceQuery(notExistingId), CancellationToken.None));
+        await Assert.ThrowsAsync<UserNotFoundException>(() =>
+            _queryHandler.Handle(new GetUserBalanceQuery(notExistingId), CancellationToken.None));
     }
 }

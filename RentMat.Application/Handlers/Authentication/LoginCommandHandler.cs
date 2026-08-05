@@ -46,7 +46,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, TokenResponseDt
         };
         _db.RefreshTokenEntries.Add(refreshTokenEntry);
         await _db.SaveChangesAsync(cancellationToken);
-        
+
         return new TokenResponseDto(accessToken, refreshToken, expires);
     }
 }

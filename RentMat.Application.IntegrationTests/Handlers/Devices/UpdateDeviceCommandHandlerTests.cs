@@ -13,8 +13,9 @@ namespace RentMat.Application.IntegrationTests.Handlers.Devices;
 [Collection("Integration Tests Collection")]
 public class UpdateDeviceCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly UpdateDeviceCommandHandler _commandHandler;
     private readonly IFusionCache _cache;
+    private readonly UpdateDeviceCommandHandler _commandHandler;
+
     public UpdateDeviceCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
@@ -26,16 +27,16 @@ public class UpdateDeviceCommandHandlerTests : BaseIntegrationTest
     public async Task Should_UpdateDevice_In_Database()
     {
         var category = await CreateDeviceCategoryAsync();
-        
+
         const string newName = "Laptop";
         const decimal newRentPrice = 100;
         var newCategoryId = category.Id;
-        
+
         var device = await CreateDeviceAsync();
         device.Name.Should().NotBe(newName);
         device.HourRentPrice.Should().NotBe(newRentPrice);
         device.CategoryId.Should().NotBe(newCategoryId);
-        
+
         var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, newCategoryId);
         await _commandHandler.Handle(command, CancellationToken.None);
 
@@ -51,54 +52,55 @@ public class UpdateDeviceCommandHandlerTests : BaseIntegrationTest
         const string newName = "Laptop";
         const decimal newRentPrice = 100;
         const int notExistingId = 999;
-        
+
         var device = await CreateDeviceAsync();
         var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, notExistingId);
 
         await Assert.ThrowsAsync<DeviceCategoryNotFoundException>(() =>
             _commandHandler.Handle(command, CancellationToken.None));
     }
+
     [Fact]
     public async Task Should_Throw_DeviceNotFoundException_WhenDeviceDoesNotExist()
     {
         var category = await CreateDeviceCategoryAsync();
-        
+
         const string newName = "Laptop";
         const decimal newRentPrice = 100;
         var newCategoryId = category.Id;
-        
+
         const int notExistingId = 999;
         var command = new UpdateDeviceCommand(notExistingId, newName, newRentPrice, newCategoryId);
 
         await Assert.ThrowsAsync<DeviceNotFoundException>(() =>
             _commandHandler.Handle(command, CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_Throw_DeviceIsBookedException_WhenDeviceIsBooked()
     {
         var category = await CreateDeviceCategoryAsync();
-        
+
         const string newName = "Laptop";
         const decimal newRentPrice = 100;
         var newCategoryId = category.Id;
-        
-        var device = await CreateDeviceAsync(status:DeviceStatus.Rented);
+
+        var device = await CreateDeviceAsync(status: DeviceStatus.Rented);
         var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, newCategoryId);
-        
+
         await Assert.ThrowsAsync<DeviceIsBookedException>(() =>
             _commandHandler.Handle(command, CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_InvalidateCache_After_Retire()
     {
         var category = await CreateDeviceCategoryAsync();
-        
+
         const string newName = "Laptop";
         const decimal newRentPrice = 100;
         var newCategoryId = category.Id;
-        
+
         var device = await CreateDeviceAsync();
         var command = new UpdateDeviceCommand(device.Id, newName, newRentPrice, newCategoryId);
 
@@ -106,9 +108,9 @@ public class UpdateDeviceCommandHandlerTests : BaseIntegrationTest
         await _cache.SetAsync(cacheKey, "test", tags: [CacheTags.Devices]);
         var cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeTrue();
-        
+
         await _commandHandler.Handle(command, CancellationToken.None);
-        
+
         cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeFalse();
     }

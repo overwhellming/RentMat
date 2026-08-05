@@ -4,58 +4,24 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using RentMat.Infrastructure.Data;
 using Respawn;
 using Testcontainers.PostgreSql;
-using Testcontainers.Redis;
 
 namespace RentMat.Application.IntegrationTests.Infrastructure;
 
 public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private string _connectionString = null!;
-    private Respawner _respawner = null!;
-
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18-alpine")
         .WithDatabase("rentmat_test")
         .WithUsername("postgres")
         .WithPassword("postgres")
         .Build();
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.UseEnvironment("Testing");
-        
-        builder.ConfigureAppConfiguration((_, config) =>
-        {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                { "Jwt:Key", "SuperSecretKey1234567890SuperSecretKey1234567890" },
-                { "Jwt:Issuer", "RentMatIssuer" },
-                { "Jwt:Audience", "RentMatAudience" }
-            });
-        });
-        
-        builder.ConfigureTestServices(services =>
-        {
-            var service = services
-                .SingleOrDefault(s => s.ServiceType == typeof(DbContextOptions<AppDbContext>));
-            if (service is not null)
-                services.Remove(service);
-
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options
-                    .UseNpgsql(_container.GetConnectionString());
-            });
-        });
-
-        builder.ConfigureLogging(logging =>
-            logging.ClearProviders());
-    }
+    private string _connectionString = null!;
+    private Respawner _respawner = null!;
 
     public async Task InitializeAsync()
     {
@@ -77,6 +43,44 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         await InitializeRespawnerAsync();
     }
 
+    public new async Task DisposeAsync()
+    {
+        await _container.StopAsync();
+        await base.DisposeAsync();
+    }
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.UseEnvironment("Testing");
+
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "Jwt:Key", "SuperSecretKey1234567890SuperSecretKey1234567890" },
+                { "Jwt:Issuer", "RentMatIssuer" },
+                { "Jwt:Audience", "RentMatAudience" }
+            });
+        });
+
+        builder.ConfigureTestServices(services =>
+        {
+            var service = services
+                .SingleOrDefault(s => s.ServiceType == typeof(DbContextOptions<AppDbContext>));
+            if (service is not null)
+                services.Remove(service);
+
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options
+                    .UseNpgsql(_container.GetConnectionString());
+            });
+        });
+
+        builder.ConfigureLogging(logging =>
+            logging.ClearProviders());
+    }
+
     private async Task InitializeRespawnerAsync()
     {
         await using var connection = new NpgsqlConnection(_connectionString);
@@ -93,11 +97,5 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
-    }
-
-    public new async Task DisposeAsync()
-    {
-        await _container.StopAsync();
-        await base.DisposeAsync();
     }
 }

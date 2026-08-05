@@ -32,7 +32,7 @@ public class RefreshTokenCommandHandlerTests : BaseIntegrationTest
         var command = new RefreshTokenCommand(initialResponse.AccessToken, initialResponse.RefreshToken);
 
         DbContext.ChangeTracker.Clear();
-        
+
         var refreshedResponse = await _mediator.Send(command, CancellationToken.None);
 
         refreshedResponse.Should().NotBeNull();
@@ -47,8 +47,8 @@ public class RefreshTokenCommandHandlerTests : BaseIntegrationTest
         newEntryInDb.CreatedAt.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
         newEntryInDb.ExpiresAt.Should().BeCloseTo(DateTimeOffset.UtcNow.AddDays(JwtTokenService.RefreshTokenDays),
             TimeSpan.FromSeconds(1));
-        
-        
+
+
         var oldEntryInDb =
             await DbContext.RefreshTokenEntries.FirstOrDefaultAsync(e => e.Token == initialResponse.RefreshToken);
         oldEntryInDb.Should().NotBeNull();

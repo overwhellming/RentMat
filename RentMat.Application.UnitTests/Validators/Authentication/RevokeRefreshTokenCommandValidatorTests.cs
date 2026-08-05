@@ -13,7 +13,7 @@ public class RevokeRefreshTokenCommandValidatorTests
     {
         var command = new RevokeRefreshTokenCommand
         (
-            UserId: 1
+            1
         );
 
         var result = _validator.TestValidate(command);
@@ -25,7 +25,7 @@ public class RevokeRefreshTokenCommandValidatorTests
     {
         var command = new RevokeRefreshTokenCommand
         (
-            UserId: 0
+            0
         );
 
         var result = _validator.TestValidate(command);

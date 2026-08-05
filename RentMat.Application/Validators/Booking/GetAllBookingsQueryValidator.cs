@@ -1,7 +1,6 @@
 using FluentValidation;
 using RentMat.Application.Handlers.Devices;
 using RentMat.Application.Queries.Booking;
-using RentMat.Application.Queries.Devices;
 using RentMat.Core.Constants;
 
 namespace RentMat.Application.Validators.Devices;

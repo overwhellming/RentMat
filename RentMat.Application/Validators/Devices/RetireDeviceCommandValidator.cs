@@ -1,6 +1,5 @@
 using FluentValidation;
 using RentMat.Application.Commands.Devices;
-using RentMat.Application.Queries.Devices;
 
 namespace RentMat.Application.Validators.Devices;
 

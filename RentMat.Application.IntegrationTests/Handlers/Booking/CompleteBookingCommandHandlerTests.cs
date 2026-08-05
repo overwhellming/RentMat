@@ -14,9 +14,9 @@ namespace RentMat.Application.IntegrationTests.Handlers.Booking;
 [Collection("Integration Tests Collection")]
 public class CompleteBookingCommandHandlerTests : BaseIntegrationTest
 {
-    private readonly CompleteBookingCommandHandler _commandHandler;
     private readonly IFusionCache _cache;
-    
+    private readonly CompleteBookingCommandHandler _commandHandler;
+
     public CompleteBookingCommandHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         var scope = factory.Services.CreateScope();
@@ -29,15 +29,15 @@ public class CompleteBookingCommandHandlerTests : BaseIntegrationTest
     {
         var booking = await CreateBookingAsync();
         booking.Status.Should().Be(BookingStatus.Active);
-        
+
         await _commandHandler.Handle(new CompleteBookingCommand(booking.Id, booking.UserId), CancellationToken.None);
 
         DbContext.ChangeTracker.Clear();
-        
+
         var bookingInDB = await DbContext.Bookings
             .Include(b => b.Device)
             .FirstOrDefaultAsync(b => b.Id == booking.Id);
-        
+
         bookingInDB!.Status.Should().Be(BookingStatus.Completed);
         bookingInDB.Device.Status.Should().Be(DeviceStatus.Available);
         bookingInDB.EndDate.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(2));
@@ -71,9 +71,9 @@ public class CompleteBookingCommandHandlerTests : BaseIntegrationTest
         await _cache.SetAsync(cacheKey, "test", tags: [CacheTags.Bookings]);
         var cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeTrue();
-        
+
         await _commandHandler.Handle(new CompleteBookingCommand(booking.Id, booking.UserId), CancellationToken.None);
-        
+
         cachedData = await _cache.TryGetAsync<string>(cacheKey);
         cachedData.HasValue.Should().BeFalse();
     }

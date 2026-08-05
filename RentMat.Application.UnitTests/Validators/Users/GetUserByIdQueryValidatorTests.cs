@@ -13,7 +13,7 @@ public class GetUserByIdQueryValidatorTests
     {
         var query = new GetUserByIdQuery
         (
-            UserId: 1
+            1
         );
 
         var result = _validator.TestValidate(query);
@@ -25,7 +25,7 @@ public class GetUserByIdQueryValidatorTests
     {
         var query = new GetUserByIdQuery
         (
-            UserId: 0
+            0
         );
 
         var result = _validator.TestValidate(query);

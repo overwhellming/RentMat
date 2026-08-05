@@ -1,6 +1,5 @@
 using FluentValidation;
 using RentMat.Application.Commands.Authentication;
-using RentMat.Application.DTOs.Authentication;
 using RentMat.Core.Constants;
 
 namespace RentMat.Application.Validators.Authentication;

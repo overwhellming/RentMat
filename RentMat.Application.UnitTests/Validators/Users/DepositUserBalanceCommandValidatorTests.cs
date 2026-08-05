@@ -14,8 +14,8 @@ public class DepositUserBalanceCommandValidatorTests
     {
         var command = new DepositUserBalanceCommand
         (
-            Amount: 100,
-            UserId: 1
+            100,
+            1
         );
 
         var result = _validator.TestValidate(command);
@@ -27,8 +27,8 @@ public class DepositUserBalanceCommandValidatorTests
     {
         var command = new DepositUserBalanceCommand
         (
-            Amount: 0,
-            UserId: 1
+            0,
+            1
         );
 
         var result = _validator.TestValidate(command);
@@ -40,21 +40,21 @@ public class DepositUserBalanceCommandValidatorTests
     {
         var command = new DepositUserBalanceCommand
         (
-            Amount: ValidationConstants.MaxDepositAmount + 1,
-            UserId: 1
+            ValidationConstants.MaxDepositAmount + 1,
+            1
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Amount);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_UserId_Is_Zero()
     {
         var command = new DepositUserBalanceCommand
         (
-            Amount: 100,
-            UserId: 0
+            100,
+            0
         );
 
         var result = _validator.TestValidate(command);

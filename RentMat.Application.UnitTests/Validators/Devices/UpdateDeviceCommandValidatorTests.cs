@@ -1,6 +1,5 @@
 using FluentValidation.TestHelper;
 using RentMat.Application.Commands.Devices;
-using RentMat.Application.DTOs.Device;
 using RentMat.Application.Validators.Devices;
 using RentMat.Core.Constants;
 
@@ -15,10 +14,10 @@ public class UpdateDeviceCommandValidatorTests
     {
         var command = new UpdateDeviceCommand
         (
-            Id: 1,
-            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
-            HourRentPrice: 1000,
-            CategoryId: 1
+            1,
+            new string('a', ValidationConstants.DeviceNameMaxLength),
+            1000,
+            1
         );
 
         var result = _validator.TestValidate(command);
@@ -30,70 +29,70 @@ public class UpdateDeviceCommandValidatorTests
     {
         var command = new UpdateDeviceCommand
         (
-            Id: 0,
-            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
-            HourRentPrice: 1000,
-            CategoryId: 1
+            0,
+            new string('a', ValidationConstants.DeviceNameMaxLength),
+            1000,
+            1
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Id);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Name_Is_Empty()
     {
         var command = new UpdateDeviceCommand
         (
-            Id: 1,
-            Name: string.Empty,
-            HourRentPrice: 1000,
-            CategoryId: 1
+            1,
+            string.Empty,
+            1000,
+            1
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Name);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_Name_Exceed_MaximumLength()
     {
         var command = new UpdateDeviceCommand
         (
-            Id: 1,
-            Name: new string('a', ValidationConstants.DeviceNameMaxLength + 1),
-            HourRentPrice: 1000,
-            CategoryId: 1
+            1,
+            new string('a', ValidationConstants.DeviceNameMaxLength + 1),
+            1000,
+            1
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.Name);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_HourRentPrice_Is_Zero()
     {
         var command = new UpdateDeviceCommand
         (
-            Id: 1,
-            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
-            HourRentPrice: 0,
-            CategoryId: 1
+            1,
+            new string('a', ValidationConstants.DeviceNameMaxLength),
+            0,
+            1
         );
 
         var result = _validator.TestValidate(command);
         result.ShouldHaveValidationErrorFor(x => x.HourRentPrice);
     }
-    
+
     [Fact]
     public void Should_HaveError_When_CategoryId_Is_Zero()
     {
         var command = new UpdateDeviceCommand
         (
-            Id: 1,
-            Name: new string('a', ValidationConstants.DeviceNameMaxLength),
-            HourRentPrice: 1000,
-            CategoryId: 0
+            1,
+            new string('a', ValidationConstants.DeviceNameMaxLength),
+            1000,
+            0
         );
 
         var result = _validator.TestValidate(command);

@@ -15,7 +15,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, T
 {
     private readonly AppDbContext _db;
     private readonly IJwtTokenService _tokenService;
-    
+
     public RefreshTokenCommandHandler(AppDbContext db, IJwtTokenService tokenService)
     {
         _db = db;
@@ -35,7 +35,8 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, T
 
         var tokenEntry = await _db.RefreshTokenEntries
             .Include(e => e.User)
-            .FirstOrDefaultAsync(e => e.Token == command.RefreshToken && e.UserId.ToString() == userId, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Token == command.RefreshToken && e.UserId.ToString() == userId,
+                cancellationToken);
 
         if (tokenEntry is null || tokenEntry.IsRevoked || tokenEntry.ExpiresAt < DateTimeOffset.UtcNow)
             throw new InvalidRefreshTokenException();

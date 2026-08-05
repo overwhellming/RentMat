@@ -20,7 +20,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         b.Property(u => u.Role)
             .HasConversion<string>()
             .HasMaxLength(ValidationConstants.UserRoleMaxLength);
-        
+
         b.HasIndex(u => u.Login)
             .IsUnique();
         b.HasIndex(u => u.Email)

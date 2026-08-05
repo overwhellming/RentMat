@@ -14,7 +14,7 @@ public class JwtTokenService : IJwtTokenService
 {
     private const int DefaultExpireMinutes = 60;
     public const int RefreshTokenDays = 7;
-    
+
     private readonly IConfiguration _config;
 
     public JwtTokenService(IConfiguration config)
@@ -37,9 +37,9 @@ public class JwtTokenService : IJwtTokenService
         var issuer = jwt["Issuer"] ?? throw new JwtKeyNotFoundException();
         var audience = jwt["Audience"] ?? throw new JwtKeyNotFoundException();
 
-        if (!int.TryParse(jwt["ExpireMinutes"], out var expireMinutes)) 
+        if (!int.TryParse(jwt["ExpireMinutes"], out var expireMinutes))
             expireMinutes = DefaultExpireMinutes;
-        
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

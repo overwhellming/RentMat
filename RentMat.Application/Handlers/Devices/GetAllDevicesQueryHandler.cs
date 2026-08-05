@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using RentMat.Application.Common;
 using RentMat.Application.DTOs.Device;
 using RentMat.Application.Queries.Devices;
-using RentMat.Application.Queries.Users;
 using RentMat.Core.Enums;
 using RentMat.Infrastructure.Data;
 using ZiggyCreatures.Caching.Fusion;
@@ -15,7 +14,7 @@ public class GetAllDevicesQueryHandler : IRequestHandler<GetAllDevicesQuery, Pag
 {
     public const int DefaultPageSize = 10;
     public const int MaxPageSize = 50;
-    
+
     private readonly IFusionCache _cache;
 
     private readonly AppDbContext _db;

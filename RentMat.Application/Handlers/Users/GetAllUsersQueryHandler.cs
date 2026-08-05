@@ -13,7 +13,7 @@ public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, PagedRe
 {
     public const int MaxPageSize = 50;
     public const int DefaultPageSize = 10;
-    
+
     private readonly IFusionCache _cache;
     private readonly AppDbContext _db;
     private readonly ILogger<GetAllUsersQueryHandler> _logger;

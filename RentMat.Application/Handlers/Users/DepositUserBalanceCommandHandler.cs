@@ -12,16 +12,17 @@ namespace RentMat.Application.Handlers.Users;
 
 public class DepositUserBalanceCommandHandler : IRequestHandler<DepositUserBalanceCommand, DepositCreatedResponseDto>
 {
-    private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
-    
+    private readonly AppDbContext _db;
+
     public DepositUserBalanceCommandHandler(AppDbContext db, IFusionCache cache)
     {
         _db = db;
         _cache = cache;
     }
 
-    public async Task<DepositCreatedResponseDto> Handle(DepositUserBalanceCommand command, CancellationToken cancellationToken)
+    public async Task<DepositCreatedResponseDto> Handle(DepositUserBalanceCommand command,
+        CancellationToken cancellationToken)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
 
@@ -39,7 +40,7 @@ public class DepositUserBalanceCommandHandler : IRequestHandler<DepositUserBalan
         await _db.SaveChangesAsync(cancellationToken);
 
         await _cache.RemoveByTagAsync(CacheTags.Users);
-        
+
         return new DepositCreatedResponseDto(deposit.Id, deposit.Amount, deposit.CreatedAt, user.Balance);
     }
 }

@@ -13,14 +13,14 @@ namespace RentMat.Application.IntegrationTests.Handlers.Booking;
 [Collection("Integration Tests Collection")]
 public class GetBookingByIdQueryHandlerTests : BaseIntegrationTest
 {
-    private readonly GetBookingByIdQueryHandler _queryHandler;
     private readonly IFusionCache _cache;
-    
+    private readonly GetBookingByIdQueryHandler _queryHandler;
+
     public GetBookingByIdQueryHandlerTests(IntegrationTestWebAppFactory factory) : base(factory)
     {
         using var scope = factory.Services.CreateScope();
         _cache = scope.ServiceProvider.GetRequiredService<IFusionCache>();
-        _queryHandler = new  GetBookingByIdQueryHandler(DbContext, _cache,
+        _queryHandler = new GetBookingByIdQueryHandler(DbContext, _cache,
             scope.ServiceProvider.GetRequiredService<ILogger<GetBookingByIdQueryHandler>>());
     }
 
@@ -43,30 +43,30 @@ public class GetBookingByIdQueryHandlerTests : BaseIntegrationTest
         await Assert.ThrowsAsync<BookingNotFoundException>(() =>
             _queryHandler.Handle(new GetBookingByIdQuery(notExistingId), CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task Should_Return_CachedBooking_If_CacheExists()
     {
         const decimal initialPrice = 100;
         var booking = await CreateBookingAsync(totalPrice: initialPrice);
-        
+
         var response = await _queryHandler.Handle(new GetBookingByIdQuery(booking.Id), CancellationToken.None);
         response.TotalPrice.Should().Be(initialPrice);
 
         var bookingInDb = await DbContext.Bookings.FindAsync(booking.Id);
         bookingInDb!.TotalPrice = initialPrice + 100;
         await DbContext.SaveChangesAsync();
-        
+
         response = await _queryHandler.Handle(new GetBookingByIdQuery(booking.Id), CancellationToken.None);
         response.TotalPrice.Should().Be(initialPrice);
     }
-    
+
     [Fact]
     public async Task Should_Return_UpdatedData_After_CacheInvalidation()
     {
         const decimal initialPrice = 100;
         var booking = await CreateBookingAsync(totalPrice: initialPrice);
-        
+
         var response = await _queryHandler.Handle(new GetBookingByIdQuery(booking.Id), CancellationToken.None);
         response.TotalPrice.Should().Be(initialPrice);
 
@@ -74,7 +74,7 @@ public class GetBookingByIdQueryHandlerTests : BaseIntegrationTest
         bookingInDb!.TotalPrice = initialPrice + 100;
         await DbContext.SaveChangesAsync();
         await _cache.RemoveByTagAsync(CacheTags.Bookings);
-        
+
         response = await _queryHandler.Handle(new GetBookingByIdQuery(booking.Id), CancellationToken.None);
         response.TotalPrice.Should().Be(initialPrice + 100);
     }

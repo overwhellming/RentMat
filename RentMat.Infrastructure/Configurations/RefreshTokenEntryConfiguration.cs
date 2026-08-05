@@ -10,7 +10,7 @@ public class RefreshTokenEntryConfiguration : IEntityTypeConfiguration<RefreshTo
     {
         b.Property(e => e.Token)
             .HasMaxLength(256);
-        
+
         b.HasOne(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId)
