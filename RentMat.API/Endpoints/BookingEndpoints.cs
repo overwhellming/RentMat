@@ -75,14 +75,6 @@ internal static class BookingEndpoints
         return TypedResults.Ok(await mediator.Send(new GetBookingByIdQuery(id), cancellationToken));
     }
 
-    private static async Task<Ok<IEnumerable<BookingResponseDto>>> GetMy(
-        ClaimsPrincipal user, 
-        [FromServices] GetUserBookingsQueryHandler queryHandler,
-        CancellationToken cancellationToken)
-    {
-        return TypedResults.Ok(await queryHandler.Handle(new GetUserBookingsQuery(user.GetUserId()), cancellationToken));
-    }
-
     private static async Task<CreatedAtRoute<BookingResponseDto>> Create(
         [FromBody] BookingCreateDto dto, 
         ClaimsPrincipal user, 
@@ -94,13 +86,21 @@ internal static class BookingEndpoints
         return TypedResults.CreatedAtRoute(booking, routeName: "GetBookingById", routeValues: new {id = booking.Id});
     }
 
+    private static async Task<Ok<IEnumerable<BookingResponseDto>>> GetMy(
+        ClaimsPrincipal user, 
+        [FromServices] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        return TypedResults.Ok(await mediator.Send(new GetUserBookingsQuery(user.GetUserId()), cancellationToken));
+    }
+
     private static async Task<NoContent> Complete(
         int id, 
         ClaimsPrincipal user, 
-        [FromServices] CompleteBookingCommandHandler commandHandler, 
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        await commandHandler.Handle(new CompleteBookingCommand(id, user.GetUserId()), cancellationToken);
+        await mediator.Send(new CompleteBookingCommand(id, user.GetUserId()), cancellationToken);
         return TypedResults.NoContent();
     }
 }
