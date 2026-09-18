@@ -15,16 +15,17 @@
 
 ## Технологии
 
-| Слой | Стек |
-|---|---|
-| Runtime | ASP.NET Core 10 (chiseled composite образ) |
-| Архитектура | Clean Architecture, CQRS / MediatR |
-| База данных | PostgreSQL |
-| ORM | Entity Framework Core  |
-| Валидация | FluentValidation |
-| Кэширование | FusionCache |
-| Логирование | Serilog + Seq |
-| Инфраструктура | Docker / Docker Compose |
+| **Слой**       | **Стек**                                                           |
+| -------------- | ------------------------------------------------------------------ |
+| Runtime        | ASP.NET Core 10 (chiseled composite образ)                         |
+| Архитектура    | Clean Architecture, CQRS / MediatR                                 |
+| База данных    | PostgreSQL                                                         |
+| ORM            | Entity Framework Core                                              |
+| Валидация      | FluentValidation                                                   |
+| Кэширование    | FusionCache                                                        |
+| Логирование    | Serilog + Seq                                                      |
+| Инфраструктура | Docker / Docker Compose                                            |
+| Тестирование   | xUnit, Testcontainers (151 тест: 71 юнит-тест и 80 интеграционных) |
 
 ## Архитектура
 
@@ -144,12 +145,18 @@ dotnet ef database update --project RentMat.Infrastructure --startup-project Ren
 
 ## Тестирование
 
+Для автоматизированной проверки приложения используется **xUnit**.
+
+Всего реализован **151 тест**:
+
+* `RentMat.UnitTests` — **71 юнит-тест** для проверки доменной логики, handlers и валидации.
+* `RentMat.IntegrationTests` — **80 интеграционных тестов** для проверки API и взаимодействия с PostgreSQL.
+
+Интеграционные тесты используют **Testcontainers** для автоматического запуска изолированного контейнера PostgreSQL, что позволяет выполнять тесты на реальной СУБД без зависимости от локальной базы данных.
+
 ```bash
 dotnet test
 ```
-
-- `RentMat.UnitTests` — доменная логика и handlers
-- `RentMat.IntegrationTests` — API + БД (Testcontainers)
 
 ## Структура проекта
 
